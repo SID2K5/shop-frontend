@@ -57,11 +57,24 @@ export default function Products() {
 
   /* ================= SAVE (FIXED) ================= */
   const handleSave = async (product) => {
-    // ✅ CRITICAL FIX: ensure correct data types
+  try {
+    // 🔥 FIND CATEGORY OBJECT
+    const selectedCategory = categories.find(
+      (c) => c.name === product.category
+    );
+
+    if (!selectedCategory) {
+      alert("Invalid category selected");
+      return;
+    }
+
     const payload = {
-      ...product,
+      name: product.name,
       price: Number(product.price),
       quantity: Number(product.quantity),
+
+      // ✅ SEND CATEGORY ID (NOT NAME)
+      category: selectedCategory._id,
     };
 
     if (editingProduct) {
@@ -73,7 +86,12 @@ export default function Products() {
     setIsModalOpen(false);
     setEditingProduct(null);
     fetchProducts();
-  };
+  } catch (err) {
+    console.error("Save product failed:", err.response?.data || err.message);
+    alert(err.response?.data?.message || "Failed to save product");
+  }
+};
+
 
   /* ================= DELETE ================= */
   const handleDelete = async () => {
