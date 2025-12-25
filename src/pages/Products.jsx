@@ -53,36 +53,31 @@ export default function Products() {
 
   /* ================= SAVE ================= */
   const handleSave = async (product) => {
-    try {
-      const selectedCategory = categories.find(
-        (c) => c.name === product.category
-      );
+    const selectedCategory = categories.find(
+      (c) => c.name === product.category
+    );
 
-      if (!selectedCategory) {
-        alert("Invalid category selected");
-        return;
-      }
-
-      const payload = {
-        name: product.name,
-        price: Number(product.price),
-        quantity: Number(product.quantity),
-        category: selectedCategory._id,
-      };
-
-      if (editingProduct) {
-        await api.put(`/products/${editingProduct._id}`, payload);
-      } else {
-        await api.post("/products", payload);
-      }
-
-      setIsModalOpen(false);
-      setEditingProduct(null);
-      fetchProducts();
-    } catch (err) {
-      console.error(err);
-      alert("Failed to save product");
+    if (!selectedCategory) {
+      alert("Invalid category selected");
+      return;
     }
+
+    const payload = {
+      name: product.name,
+      price: Number(product.price),
+      quantity: Number(product.quantity),
+      category: selectedCategory._id,
+    };
+
+    if (editingProduct) {
+      await api.put(`/products/${editingProduct._id}`, payload);
+    } else {
+      await api.post("/products", payload);
+    }
+
+    setIsModalOpen(false);
+    setEditingProduct(null);
+    fetchProducts();
   };
 
   /* ================= DELETE ================= */
@@ -106,33 +101,44 @@ export default function Products() {
   const processedProducts = useMemo(() => {
     let data = [...products];
 
-    // 🔥 FIX: category is OBJECT now
+    // Only active categories
     data = data.filter(
       (p) =>
         activeCategoryNames.includes(p.category?.name) ||
         activeCategoryNames.length === 0
     );
 
+    // Search
     data = data.filter((p) =>
       p.name.toLowerCase().includes(search.toLowerCase())
     );
 
+    // Category filter
     if (categoryFilter !== "All") {
       data = data.filter(
         (p) => p.category?.name === categoryFilter
       );
     }
 
+    // Stock filter
     if (stockFilter === "In") data = data.filter((p) => p.quantity > 0);
     if (stockFilter === "Out") data = data.filter((p) => p.quantity === 0);
 
+    // Sorting
     if (sortBy === "price-asc") data.sort((a, b) => a.price - b.price);
     if (sortBy === "price-desc") data.sort((a, b) => b.price - a.price);
     if (sortBy === "qty-asc") data.sort((a, b) => a.quantity - b.quantity);
     if (sortBy === "qty-desc") data.sort((a, b) => b.quantity - a.quantity);
 
     return data;
-  }, [products, search, categoryFilter, stockFilter, sortBy, activeCategoryNames]);
+  }, [
+    products,
+    search,
+    categoryFilter,
+    stockFilter,
+    sortBy,
+    activeCategoryNames,
+  ]);
 
   /* ================= PAGINATION ================= */
   const totalPages = Math.ceil(processedProducts.length / ITEMS_PER_PAGE);
@@ -154,26 +160,82 @@ export default function Products() {
 
   return (
     <div className="p-6 text-gray-200">
-      <div className="flex justify-between mb-6">
+
+      {/* HEADER */}
+      <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Products</h1>
         <button
           onClick={() => {
             setIsModalOpen(true);
             setEditingProduct(null);
           }}
-          className="bg-blue-600 px-4 py-2 rounded-lg"
+          className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg"
         >
           + Add Product
         </button>
       </div>
 
-      <div className="grid grid-cols-4 gap-6 mb-6">
+      {/* LOW STOCK ALERT */}
+      {lowStock > 0 && (
+        <div className="mb-6 bg-yellow-900/40 border border-yellow-700 text-yellow-300 px-4 py-3 rounded-lg">
+          ⚠️ <strong>{lowStock}</strong> product(s) running low
+        </div>
+      )}
+
+      {/* STATS */}
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-6">
         <Card title="Total Products" value={total} />
         <Card title="In Stock" value={inStock} />
         <Card title="Low Stock" value={lowStock} />
         <Card title="Out of Stock" value={outStock} />
       </div>
 
+      {/* FILTERS */}
+      <div className="bg-slate-800 p-4 rounded-xl mb-6 flex flex-wrap gap-4">
+        <input
+          placeholder="🔍 Search product..."
+          className="bg-slate-700 px-3 py-2 rounded-lg w-full sm:w-56 outline-none"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        <select
+          className="bg-slate-700 px-3 py-2 rounded-lg"
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+        >
+          <option value="All">All Categories</option>
+          {categories
+            .filter((c) => c.status === "Active")
+            .map((c) => (
+              <option key={c._id}>{c.name}</option>
+            ))}
+        </select>
+
+        <select
+          className="bg-slate-700 px-3 py-2 rounded-lg"
+          value={stockFilter}
+          onChange={(e) => setStockFilter(e.target.value)}
+        >
+          <option value="All">All Stock</option>
+          <option value="In">In Stock</option>
+          <option value="Out">Out of Stock</option>
+        </select>
+
+        <select
+          className="bg-slate-700 px-3 py-2 rounded-lg"
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+        >
+          <option value="">Sort By</option>
+          <option value="price-asc">Price ↑</option>
+          <option value="price-desc">Price ↓</option>
+          <option value="qty-asc">Qty ↑</option>
+          <option value="qty-desc">Qty ↓</option>
+        </select>
+      </div>
+
+      {/* TABLE */}
       <div className="bg-slate-900 rounded-xl overflow-x-auto">
         <table className="w-full">
           <thead className="bg-slate-800">
@@ -187,9 +249,13 @@ export default function Products() {
               )}
             </tr>
           </thead>
+
           <tbody>
             {paginatedProducts.map((p) => (
-              <tr key={p._id} className="border-t border-slate-700">
+              <tr
+                key={p._id}
+                className="border-t border-slate-700 hover:bg-slate-800"
+              >
                 <td className="p-3">{p.name}</td>
                 <td className="p-3">{p.category?.name}</td>
                 <td className="p-3">₹{p.price}</td>
@@ -229,6 +295,41 @@ export default function Products() {
           </tbody>
         </table>
       </div>
+
+      {/* PAGINATION */}
+      {totalPages > 1 && (
+        <div className="flex justify-center gap-2 mt-6">
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((p) => p - 1)}
+            className="px-3 py-1 bg-slate-700 rounded disabled:opacity-40"
+          >
+            Prev
+          </button>
+
+          {[...Array(totalPages)].map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`px-3 py-1 rounded ${
+                currentPage === i + 1
+                  ? "bg-blue-600"
+                  : "bg-slate-700"
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((p) => p + 1)}
+            className="px-3 py-1 bg-slate-700 rounded disabled:opacity-40"
+          >
+            Next
+          </button>
+        </div>
+      )}
 
       <ProductModal
         isOpen={isModalOpen}
