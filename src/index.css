@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+/* ===============================
+   BASE DARK THEME
+   =============================== */
+
+html,
+body {
+  @apply bg-gray-900 text-gray-100;
+}
+
+/* ===============================
+   GLOBAL CARD STYLE
+   =============================== */
+
+.card {
+  @apply bg-gray-800 border border-gray-700 rounded-xl shadow;
+}
+
+/* ===============================
+   GLOBAL BUTTON STYLES
+   =============================== */
+
+.btn {
+  @apply inline-flex items-center justify-center
+         px-4 py-2
+         rounded-lg
+         font-medium
+         transition-all duration-200
+         focus:outline-none focus:ring-2 focus:ring-offset-0;
+}
+
+/* Primary */
+.btn-primary {
+  @apply bg-blue-600 text-white
+         hover:bg-blue-700
+         focus:ring-blue-400;
+}
+
+/* Secondary */
+.btn-secondary {
+  @apply bg-gray-700 text-gray-100
+         hover:bg-gray-600
+         focus:ring-gray-500;
+}
+
+/* Danger */
+.btn-danger {
+  @apply bg-red-600 text-white
+         hover:bg-red-700
+         focus:ring-red-400;
+}
+
+/* Ghost */
+.btn-ghost {
+  @apply text-gray-300
+         hover:bg-gray-700
+         focus:ring-gray-500;
+}
+
+/* Disabled */
+.btn:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+/* ===============================
+   TABLES
+   =============================== */
+
+table {
+  @apply w-full border-collapse;
+}
+
+thead {
+  @apply bg-gray-700 text-gray-200;
+}
+
+tbody tr {
+  @apply border-t border-gray-700 hover:bg-gray-700/50;
+}
+
+th,
+td {
+  @apply p-3 text-left;
+}
+
+/* ===============================
+   INPUTS & SELECTS
+   =============================== */
+
+input,
+select,
+textarea {
+  @apply bg-gray-800 border border-gray-700 text-gray-100
+         rounded-lg px-3 py-2
+         focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+/* ===============================
+   MODALS
+   =============================== */
+
+.modal-backdrop {
+  @apply fixed inset-0 bg-black/70 flex items-center justify-center;
+}
+
+.modal {
+  @apply bg-gray-800 rounded-xl shadow-xl p-6 border border-gray-700;
+}
