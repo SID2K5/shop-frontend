@@ -1,9 +1,8 @@
-import axios from "axios";
+import api from "../api/axios";
 
-const API = "http://localhost:5000/api";
-
+/* ================= LOGIN ================= */
 export const loginUser = async (email, password) => {
-  const res = await axios.post(`${API}/auth/login`, {
+  const res = await api.post("/auth/login", {
     email,
     password,
   });
@@ -15,15 +14,18 @@ export const loginUser = async (email, password) => {
   return res.data;
 };
 
+/* ================= LOGOUT ================= */
 export const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("role");
 };
 
+/* ================= AUTH CHECK ================= */
 export const isAuthenticated = () => {
-  return !!localStorage.getItem("token");
+  return Boolean(localStorage.getItem("token"));
 };
 
+/* ================= ROLE ================= */
 export const getRole = () => {
   return localStorage.getItem("role");
 };
