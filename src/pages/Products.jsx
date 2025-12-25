@@ -1,18 +1,18 @@
 import { useEffect, useState, useMemo } from "react";
-import axios from "../api/axios";
+import api from "../api/axios";
 
 import Card from "../components/Card";
 import ProductModal from "../components/ProductModal";
 import DeleteConfirmModal from "../components/DeleteConfirmModal";
 import { io } from "socket.io-client";
 
-const API_URL = "http://localhost:5000/api/products";
-const CATEGORY_URL = "http://localhost:5000/api/categories";
-
 const ITEMS_PER_PAGE = 5;
 const LOW_STOCK_LIMIT = 5;
 
-const socket = io("http://localhost:5000");
+// ✅ socket uses SAME backend as axios
+const socket = io(import.meta.env.VITE_API_BASE_URL, {
+  withCredentials: true,
+});
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -35,13 +35,12 @@ export default function Products() {
 
   /* ================= FETCH ================= */
   const fetchProducts = async () => {
-    const res = await axios.get("/products");
+    const res = await api.get("/products");
     setProducts(res.data);
   };
 
-
   const fetchCategories = async () => {
-    const res = await axios.get(CATEGORY_URL);
+    const res = await api.get("/categories");
     setCategories(res.data);
   };
 
@@ -59,9 +58,9 @@ export default function Products() {
   /* ================= SAVE ================= */
   const handleSave = async (product) => {
     if (editingProduct) {
-      await axios.put(`${API_URL}/${editingProduct._id}`, product);
+      await api.put(`/products/${editingProduct._id}`, product);
     } else {
-      await axios.post(API_URL, product);
+      await api.post("/products", product);
     }
     setIsModalOpen(false);
     setEditingProduct(null);
@@ -70,7 +69,7 @@ export default function Products() {
 
   /* ================= DELETE ================= */
   const handleDelete = async () => {
-    await axios.delete(`${API_URL}/${productToDelete._id}`);
+    await api.delete(`/products/${productToDelete._id}`);
     setIsDeleteOpen(false);
     setProductToDelete(null);
     fetchProducts();
@@ -87,7 +86,9 @@ export default function Products() {
     let data = [...products];
 
     data = data.filter(
-      p => activeCategoryNames.includes(p.category) || activeCategoryNames.length === 0
+      p =>
+        activeCategoryNames.includes(p.category) ||
+        activeCategoryNames.length === 0
     );
 
     data = data.filter(p =>
@@ -109,15 +110,22 @@ export default function Products() {
     return data;
   }, [products, search, categoryFilter, stockFilter, sortBy, activeCategoryNames]);
 
-   /* ================= PAGINATION ================= */
+  /* ================= PAGINATION ================= */
   const totalPages = Math.ceil(processedProducts.length / ITEMS_PER_PAGE);
   const start = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedProducts = processedProducts.slice(start, start + ITEMS_PER_PAGE);
+  const paginatedProducts = processedProducts.slice(
+    start,
+    start + ITEMS_PER_PAGE
+  );
 
   /* ================= STATS ================= */
   const total = processedProducts.length;
-  const inStock = processedProducts.filter(p => p.quantity >= LOW_STOCK_LIMIT).length;
-  const lowStock = processedProducts.filter(p => p.quantity > 0 && p.quantity < LOW_STOCK_LIMIT).length;
+  const inStock = processedProducts.filter(
+    p => p.quantity >= LOW_STOCK_LIMIT
+  ).length;
+  const lowStock = processedProducts.filter(
+    p => p.quantity > 0 && p.quantity < LOW_STOCK_LIMIT
+  ).length;
   const outStock = processedProducts.filter(p => p.quantity === 0).length;
 
   return (
@@ -161,20 +169,34 @@ export default function Products() {
           onChange={(e) => setSearch(e.target.value)}
         />
 
-        <select className="bg-slate-700 px-3 py-2 rounded-lg" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+        <select
+          className="bg-slate-700 px-3 py-2 rounded-lg"
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+        >
           <option value="All">All Categories</option>
-          {categories.filter(c => c.status === "Active").map(c => (
-            <option key={c._id}>{c.name}</option>
-          ))}
+          {categories
+            .filter(c => c.status === "Active")
+            .map(c => (
+              <option key={c._id}>{c.name}</option>
+            ))}
         </select>
 
-        <select className="bg-slate-700 px-3 py-2 rounded-lg" value={stockFilter} onChange={(e) => setStockFilter(e.target.value)}>
+        <select
+          className="bg-slate-700 px-3 py-2 rounded-lg"
+          value={stockFilter}
+          onChange={(e) => setStockFilter(e.target.value)}
+        >
           <option value="All">All Stock</option>
           <option value="In">In Stock</option>
           <option value="Out">Out of Stock</option>
         </select>
 
-        <select className="bg-slate-700 px-3 py-2 rounded-lg" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+        <select
+          className="bg-slate-700 px-3 py-2 rounded-lg"
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+        >
           <option value="">Sort By</option>
           <option value="price-asc">Price ↑</option>
           <option value="price-desc">Price ↓</option>
@@ -189,7 +211,9 @@ export default function Products() {
           <thead className="bg-slate-800">
             <tr>
               {["Name", "Category", "Price", "Qty", "Status", "Actions"].map(h => (
-                <th key={h} className="p-3 text-left">{h}</th>
+                <th key={h} className="p-3 text-left">
+                  {h}
+                </th>
               ))}
             </tr>
           </thead>
@@ -204,14 +228,16 @@ export default function Products() {
                 <td className="p-3">{p.category}</td>
                 <td className="p-3">₹{p.price}</td>
                 <td className="p-3">{p.quantity}</td>
-
                 <td className="p-3">
-                  {p.quantity === 0 ? "❌ Out" : p.quantity < LOW_STOCK_LIMIT ? "⚠️ Low" : "✅ In"}
+                  {p.quantity === 0
+                    ? "❌ Out"
+                    : p.quantity < LOW_STOCK_LIMIT
+                    ? "⚠️ Low"
+                    : "✅ In"}
                 </td>
-
                 <td className="p-3 space-x-3">
                   <button
-                    className="text-blue-400 hover:text-blue-300 transition hover:underline"
+                    className="text-blue-400 hover:underline"
                     onClick={() => {
                       setEditingProduct(p);
                       setIsModalOpen(true);
@@ -221,14 +247,14 @@ export default function Products() {
                   </button>
 
                   <button
-                    className="text-purple-400 hover:text-purple-300 transition hover:underline"
+                    className="text-purple-400 hover:underline"
                     onClick={() => setHistoryProduct(p)}
                   >
                     History
                   </button>
 
                   <button
-                    className="text-red-400 hover:text-red-300 transition hover:underline"
+                    className="text-red-400 hover:underline"
                     onClick={() => {
                       setProductToDelete(p);
                       setIsDeleteOpen(true);
@@ -253,14 +279,22 @@ export default function Products() {
 
             <div className="max-h-80 overflow-y-auto">
               {historyProduct.stockHistory?.length ? (
-                historyProduct.stockHistory.slice().reverse().map((h, i) => (
-                  <div key={i} className="border-b border-slate-700 py-2 flex justify-between text-sm">
-                    <span>{h.previousQty} → {h.newQty}</span>
-                    <span className="text-gray-400">
-                      {new Date(h.date).toLocaleString()}
-                    </span>
-                  </div>
-                ))
+                historyProduct.stockHistory
+                  .slice()
+                  .reverse()
+                  .map((h, i) => (
+                    <div
+                      key={i}
+                      className="border-b border-slate-700 py-2 flex justify-between text-sm"
+                    >
+                      <span>
+                        {h.previousQty} → {h.newQty}
+                      </span>
+                      <span className="text-gray-400">
+                        {new Date(h.date).toLocaleString()}
+                      </span>
+                    </div>
+                  ))
               ) : (
                 <p className="text-gray-400">No history available</p>
               )}
@@ -275,7 +309,8 @@ export default function Products() {
           </div>
         </div>
       )}
-       {/* PAGINATION */}
+
+      {/* PAGINATION */}
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-2 mt-6">
           <button
@@ -297,6 +332,7 @@ export default function Products() {
               {i + 1}
             </button>
           ))}
+
           <button
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage(p => p + 1)}
@@ -306,6 +342,7 @@ export default function Products() {
           </button>
         </div>
       )}
+
       <ProductModal
         isOpen={isModalOpen}
         onClose={() => {
