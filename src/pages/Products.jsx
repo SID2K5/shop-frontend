@@ -4,7 +4,7 @@ import api from "../api/axios";
 import Card from "../components/Card";
 import ProductModal from "../components/ProductModal";
 import DeleteConfirmModal from "../components/DeleteConfirmModal";
-import StockHistoryModal from "../components/StocktHistoryModal"; // ✅ ADDED
+import StockHistoryModal from "../components/StockHistoryModal"; // ✅ ADDED
 import { io } from "socket.io-client";
 
 const ITEMS_PER_PAGE = 5;
