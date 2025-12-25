@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "../api/axios";
-
-
-const API_URL = "http://localhost:5000/api/categories";
+import api from "../api/axios";
 
 export default function Categories() {
   const [categories, setCategories] = useState([]);
@@ -11,8 +8,12 @@ export default function Categories() {
 
   /* ================= FETCH ================= */
   const fetchCategories = async () => {
-    const res = await axios.get(API_URL);
-    setCategories(res.data);
+    try {
+      const res = await api.get("/categories");
+      setCategories(res.data);
+    } catch (err) {
+      console.error("Failed to fetch categories", err);
+    }
   };
 
   useEffect(() => {
@@ -22,24 +23,37 @@ export default function Categories() {
   /* ================= ADD ================= */
   const addCategory = async () => {
     if (!name.trim()) return;
-    await axios.post(API_URL, { name });
-    setName("");
-    fetchCategories();
+
+    try {
+      await api.post("/categories", { name });
+      setName("");
+      fetchCategories();
+    } catch (err) {
+      console.error("Failed to add category", err);
+    }
   };
 
   /* ================= TOGGLE STATUS ================= */
   const toggleStatus = async (id, status) => {
-    await axios.put(`${API_URL}/${id}`, {
-      status: status === "Active" ? "Inactive" : "Active",
-    });
-    fetchCategories();
+    try {
+      await api.put(`/categories/${id}`, {
+        status: status === "Active" ? "Inactive" : "Active",
+      });
+      fetchCategories();
+    } catch (err) {
+      console.error("Failed to update category", err);
+    }
   };
 
   /* ================= DELETE ================= */
   const deleteCategory = async () => {
-    await axios.delete(`${API_URL}/${deleteId}`);
-    setDeleteId(null);
-    fetchCategories();
+    try {
+      await api.delete(`/categories/${deleteId}`);
+      setDeleteId(null);
+      fetchCategories();
+    } catch (err) {
+      console.error("Failed to delete category", err);
+    }
   };
 
   return (
