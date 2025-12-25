@@ -356,7 +356,7 @@ export default function Products() {
       />
 
       {/* ✅ HISTORY MODAL */}
-      <ProductHistoryModal
+      <StockHistoryModal
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}
         product={historyProduct}
