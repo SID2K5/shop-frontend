@@ -4,6 +4,8 @@ import api from "../api/axios";
 import Card from "../components/Card";
 import ProductModal from "../components/ProductModal";
 import DeleteConfirmModal from "../components/DeleteConfirmModal";
+import ProductHistoryModal from "../components/ProductHistoryModal";
+
 import { io } from "socket.io-client";
 
 const ITEMS_PER_PAGE = 5;
@@ -28,6 +30,11 @@ export default function Products() {
 
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
+
+  /* 🔥 HISTORY STATE */
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [historyProduct, setHistoryProduct] = useState(null);
+  const [productHistory, setProductHistory] = useState([]);
 
   /* ================= FETCH ================= */
   const fetchProducts = async () => {
@@ -88,6 +95,15 @@ export default function Products() {
     fetchProducts();
   };
 
+  /* ================= HISTORY ================= */
+  const openHistory = async (product) => {
+    setHistoryProduct(product);
+    setIsHistoryOpen(true);
+
+    const res = await api.get(`/products/${product._id}/history`);
+    setProductHistory(res.data);
+  };
+
   /* ================= ACTIVE CATEGORIES ================= */
   const activeCategoryNames = useMemo(
     () =>
@@ -101,30 +117,25 @@ export default function Products() {
   const processedProducts = useMemo(() => {
     let data = [...products];
 
-    // Only active categories
     data = data.filter(
       (p) =>
         activeCategoryNames.includes(p.category?.name) ||
         activeCategoryNames.length === 0
     );
 
-    // Search
     data = data.filter((p) =>
       p.name.toLowerCase().includes(search.toLowerCase())
     );
 
-    // Category filter
     if (categoryFilter !== "All") {
       data = data.filter(
         (p) => p.category?.name === categoryFilter
       );
     }
 
-    // Stock filter
     if (stockFilter === "In") data = data.filter((p) => p.quantity > 0);
     if (stockFilter === "Out") data = data.filter((p) => p.quantity === 0);
 
-    // Sorting
     if (sortBy === "price-asc") data.sort((a, b) => a.price - b.price);
     if (sortBy === "price-desc") data.sort((a, b) => b.price - a.price);
     if (sortBy === "qty-asc") data.sort((a, b) => a.quantity - b.quantity);
@@ -175,64 +186,12 @@ export default function Products() {
         </button>
       </div>
 
-      {/* LOW STOCK ALERT */}
-      {lowStock > 0 && (
-        <div className="mb-6 bg-yellow-900/40 border border-yellow-700 text-yellow-300 px-4 py-3 rounded-lg">
-          ⚠️ <strong>{lowStock}</strong> product(s) running low
-        </div>
-      )}
-
       {/* STATS */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 mb-6">
         <Card title="Total Products" value={total} />
         <Card title="In Stock" value={inStock} />
         <Card title="Low Stock" value={lowStock} />
         <Card title="Out of Stock" value={outStock} />
-      </div>
-
-      {/* FILTERS */}
-      <div className="bg-slate-800 p-4 rounded-xl mb-6 flex flex-wrap gap-4">
-        <input
-          placeholder="🔍 Search product..."
-          className="bg-slate-700 px-3 py-2 rounded-lg w-full sm:w-56 outline-none"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-
-        <select
-          className="bg-slate-700 px-3 py-2 rounded-lg"
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
-        >
-          <option value="All">All Categories</option>
-          {categories
-            .filter((c) => c.status === "Active")
-            .map((c) => (
-              <option key={c._id}>{c.name}</option>
-            ))}
-        </select>
-
-        <select
-          className="bg-slate-700 px-3 py-2 rounded-lg"
-          value={stockFilter}
-          onChange={(e) => setStockFilter(e.target.value)}
-        >
-          <option value="All">All Stock</option>
-          <option value="In">In Stock</option>
-          <option value="Out">Out of Stock</option>
-        </select>
-
-        <select
-          className="bg-slate-700 px-3 py-2 rounded-lg"
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-        >
-          <option value="">Sort By</option>
-          <option value="price-asc">Price ↑</option>
-          <option value="price-desc">Price ↓</option>
-          <option value="qty-asc">Qty ↑</option>
-          <option value="qty-desc">Qty ↓</option>
-        </select>
       </div>
 
       {/* TABLE */}
@@ -267,7 +226,15 @@ export default function Products() {
                     ? "⚠️ Low"
                     : "✅ In"}
                 </td>
+
                 <td className="p-3 space-x-3">
+                  <button
+                    onClick={() => openHistory(p)}
+                    className="text-purple-400"
+                  >
+                    History
+                  </button>
+
                   <button
                     onClick={() => {
                       setEditingProduct({
@@ -280,6 +247,7 @@ export default function Products() {
                   >
                     Edit
                   </button>
+
                   <button
                     onClick={() => {
                       setProductToDelete(p);
@@ -296,41 +264,6 @@ export default function Products() {
         </table>
       </div>
 
-      {/* PAGINATION */}
-      {totalPages > 1 && (
-        <div className="flex justify-center gap-2 mt-6">
-          <button
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((p) => p - 1)}
-            className="px-3 py-1 bg-slate-700 rounded disabled:opacity-40"
-          >
-            Prev
-          </button>
-
-          {[...Array(totalPages)].map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrentPage(i + 1)}
-              className={`px-3 py-1 rounded ${
-                currentPage === i + 1
-                  ? "bg-blue-600"
-                  : "bg-slate-700"
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
-
-          <button
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage((p) => p + 1)}
-            className="px-3 py-1 bg-slate-700 rounded disabled:opacity-40"
-          >
-            Next
-          </button>
-        </div>
-      )}
-
       <ProductModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -343,6 +276,13 @@ export default function Products() {
         isOpen={isDeleteOpen}
         onClose={() => setIsDeleteOpen(false)}
         onConfirm={handleDelete}
+      />
+
+      <ProductHistoryModal
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        product={historyProduct}
+        history={productHistory}
       />
     </div>
   );
