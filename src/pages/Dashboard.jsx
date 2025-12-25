@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import axios from "../api/axios";
+import api from "../api/axios";
 
 import Card from "../components/Card";
 import {
@@ -11,9 +11,6 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const PRODUCT_URL = "http://localhost:5000/api/products";
-const CATEGORY_URL = "http://localhost:5000/api/categories";
-
 const LOW_STOCK_LIMIT = 5;
 
 export default function Dashboard() {
@@ -22,8 +19,8 @@ export default function Dashboard() {
 
   /* ================= FETCH ================= */
   useEffect(() => {
-    axios.get(PRODUCT_URL).then(res => setProducts(res.data));
-    axios.get(CATEGORY_URL).then(res => setCategories(res.data));
+    api.get("/products").then(res => setProducts(res.data));
+    api.get("/categories").then(res => setCategories(res.data));
   }, []);
 
   /* ================= ACTIVE PRODUCTS ================= */
@@ -88,7 +85,7 @@ export default function Dashboard() {
     };
   }, [activeProducts]);
 
-  /* ================= TODAY'S ACTIVITY (FIXED) ================= */
+  /* ================= TODAY'S ACTIVITY ================= */
   const recentActivities = useMemo(() => {
     const logs = [];
 
@@ -176,7 +173,7 @@ export default function Dashboard() {
               <XAxis dataKey="name" stroke="#94a3b8" />
               <YAxis stroke="#94a3b8" />
               <Tooltip />
-              <Bar dataKey="qty" fill="#22c55e" radius={[6,6,0,0]} />
+              <Bar dataKey="qty" fill="#22c55e" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}
@@ -193,7 +190,7 @@ export default function Dashboard() {
             <XAxis dataKey="category" stroke="#94a3b8" />
             <YAxis stroke="#94a3b8" />
             <Tooltip formatter={v => `₹${v.toLocaleString()}`} />
-            <Bar dataKey="value" fill="#3b82f6" radius={[6,6,0,0]} />
+            <Bar dataKey="value" fill="#3b82f6" radius={[6, 6, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
