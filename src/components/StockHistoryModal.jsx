@@ -1,62 +1,77 @@
-import React from "react";
+import { useEffect, useState } from "react";
+import api from "../api/axios";
 
-export default function StockHistoryModal({ isOpen, onClose, history = [] }) {
-  if (!isOpen) return null;
+export default function StockHistoryModal({ product, onClose, isOpen }) {
+  const [logs, setLogs] = useState([]);
+
+  useEffect(() => {
+    if (!product || !isOpen) return;
+
+    const fetchHistory = async () => {
+      try {
+        const res = await api.get(`/stock-history/${product._id}`);
+        setLogs(res.data.history || []);
+      } catch (err) {
+        console.error("Failed to fetch stock history", err);
+        setLogs([]);
+      }
+    };
+
+    fetchHistory();
+  }, [product, isOpen]);
+
+  if (!isOpen || !product) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div className="bg-slate-900 rounded-xl w-full max-w-2xl p-6">
-        {/* HEADER */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-white">
-            📜 Stock History
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-white"
-          >
-            ✕
-          </button>
-        </div>
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+      <div className="bg-slate-900 text-gray-200 rounded-xl p-6 w-full max-w-3xl">
+        <h2 className="text-xl font-bold mb-4">
+          📜 Stock History – {product.name}
+        </h2>
 
-        {/* BODY */}
-        {history.length === 0 ? (
-          <p className="text-gray-400 text-center py-6">
+        {logs.length === 0 ? (
+          <p className="text-gray-400 text-center">
             No history available for this product.
           </p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-800">
-                <tr>
-                  <th className="p-2 text-left">Date</th>
-                  <th className="p-2 text-left">Action</th>
-                  <th className="p-2 text-left">Qty</th>
-                </tr>
-              </thead>
-              <tbody>
-                {history.map((h, i) => (
-                  <tr
-                    key={i}
-                    className="border-t border-slate-700"
-                  >
-                    <td className="p-2">
-                      {new Date(h.date).toLocaleString()}
+          <table className="w-full border border-slate-700">
+            <thead className="bg-slate-800">
+              <tr>
+                <th className="p-2">Previous</th>
+                <th className="p-2">New</th>
+                <th className="p-2">Change</th>
+                <th className="p-2">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {logs.map((l, i) => {
+                const change = l.newQty - l.previousQty;
+                return (
+                  <tr key={i} className="border-t border-slate-700 text-center">
+                    <td className="p-2">{l.previousQty}</td>
+                    <td className="p-2">{l.newQty}</td>
+                    <td
+                      className={`p-2 ${
+                        change > 0 ? "text-green-400" : "text-red-400"
+                      }`}
+                    >
+                      {change > 0 ? "+" : ""}
+                      {change}
                     </td>
-                    <td className="p-2">{h.action}</td>
-                    <td className="p-2">{h.quantity}</td>
+                    <td className="p-2">
+                      {new Date(l.date).toLocaleString()}
+                    </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                );
+              })}
+            </tbody>
+          </table>
         )}
 
-        {/* FOOTER */}
-        <div className="flex justify-end mt-6">
+        <div className="text-right mt-4">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-slate-700 rounded-lg hover:bg-slate-600"
+            className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded"
           >
             Close
           </button>

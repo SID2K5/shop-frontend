@@ -281,10 +281,12 @@ export default function Products() {
                   </button>
 
                   <button
-                    onClick={() => {
-                      setHistoryProduct(p);
+                    onClick={async () => {
+                      const res = await api.get(`/api/products/${p._id}`);
+                      setHistoryProduct(res.data);
                       setIsHistoryOpen(true);
                     }}
+
                     className="text-purple-400"
                   >
                     History
