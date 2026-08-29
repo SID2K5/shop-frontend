@@ -1,25 +1,26 @@
-import api from "./api";
+// frontend/src/services/categoryService.js
+import api from "../api/axios";
 
-export const getCategories = () => api.get("/categories/");
-export const createCategory = (data) => api.post("/categories/", data);
-export const deleteCategory = (id) => api.delete(`/categories/${id}/`);
-
-// LOGIN
-export const login = (credentials) => {
-  return api.post("/auth/login", credentials);
+/* ================= GET ================= */
+export const fetchCategories = async () => {
+  const res = await api.get("/categories");
+  return res.data;
 };
 
-// REGISTER (optional)
-export const register = (data) => {
-  return api.post("/auth/register", data);
+/* ================= CREATE ================= */
+export const createCategory = async (data) => {
+  const res = await api.post("/categories", data);
+  return res.data;
 };
 
-// LOGOUT
-export const logout = () => {
-  return api.post("/auth/logout");
+/* ================= UPDATE ================= */
+export const updateCategory = async (id, data) => {
+  const res = await api.put(`/categories/${id}`, data);
+  return res.data;
 };
 
-// GET CURRENT USER
-export const getCurrentUser = () => {
-  return api.get("/auth/me");
+/* ================= DELETE ================= */
+export const deleteCategory = async (id) => {
+  const res = await api.delete(`/categories/${id}`);
+  return res.data;
 };

@@ -1,26 +1,7 @@
-import { useEffect, useState } from "react";
-import api from "../api/axios";
-
-export default function StockHistoryModal({ product, onClose, isOpen }) {
-  const [logs, setLogs] = useState([]);
-
-  useEffect(() => {
-    if (!product || !isOpen) return;
-
-    const fetchHistory = async () => {
-      try {
-        const res = await api.get(`/stock-history/${product._id}`);
-        setLogs(res.data.history || []);
-      } catch (err) {
-        console.error("Failed to fetch stock history", err);
-        setLogs([]);
-      }
-    };
-
-    fetchHistory();
-  }, [product, isOpen]);
-
+export default function StockHistoryModal({ product, isOpen, onClose }) {
   if (!isOpen || !product) return null;
+
+  const logs = product.stockHistory || [];
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
@@ -47,12 +28,17 @@ export default function StockHistoryModal({ product, onClose, isOpen }) {
               {logs.map((l, i) => {
                 const change = l.newQty - l.previousQty;
                 return (
-                  <tr key={i} className="border-t border-slate-700 text-center">
+                  <tr
+                    key={i}
+                    className="border-t border-slate-700 text-center"
+                  >
                     <td className="p-2">{l.previousQty}</td>
                     <td className="p-2">{l.newQty}</td>
                     <td
                       className={`p-2 ${
-                        change > 0 ? "text-green-400" : "text-red-400"
+                        change > 0
+                          ? "text-green-400"
+                          : "text-red-400"
                       }`}
                     >
                       {change > 0 ? "+" : ""}

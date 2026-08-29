@@ -1,129 +1,125 @@
 import { useEffect, useState } from "react";
+import { fetchCategories } from "../services/categoryService";
 
-export default function ProductModal({
-  isOpen,
-  onClose,
-  onSave,
-  initialData,
-  categories,
-}) {
-  const [form, setForm] = useState({
-    name: "",
-    category: "",
-    price: "",
-    quantity: "",
-  });
+export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState("");
+  const [price, setPrice] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [categories, setCategories] = useState([]);
 
+  /* ================= LOAD CATEGORIES ================= */
+  useEffect(() => {
+    if (isOpen) {
+      loadCategories();
+    }
+  }, [isOpen]);
+
+  /* ================= EDIT MODE ================= */
   useEffect(() => {
     if (initialData) {
-      setForm({
-        name: initialData.name,
-        category: initialData.category,
-        price: initialData.price,
-        quantity: initialData.quantity,
-      });
+      setName(initialData.name || "");
+      setCategory(initialData.category?._id || "");
+      setPrice(initialData.price || "");
+      setQuantity(initialData.quantity || "");
     } else {
-      setForm({ name: "", category: "", price: "", quantity: "" });
+      resetForm();
     }
   }, [initialData]);
 
-  if (!isOpen) return null;
+  const resetForm = () => {
+    setName("");
+    setCategory("");
+    setPrice("");
+    setQuantity("");
+  };
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const loadCategories = async () => {
+    try {
+      const data = await fetchCategories();
+
+      // ✅ only ACTIVE categories
+      const active = data.filter((c) => c.status === "Active");
+
+      setCategories(active);
+
+      // 🔍 DEBUG (remove later)
+      console.log("Loaded categories:", active);
+    } catch (err) {
+      console.error("Failed to load categories", err);
+      setCategories([]);
+    }
   };
 
   const handleSubmit = () => {
+    if (!name || !category || !price || !quantity) return;
+
     onSave({
-      ...form,
-      price: Number(form.price),
-      quantity: Number(form.quantity),
+      name,
+      category,
+      price: Number(price),
+      quantity: Number(quantity),
     });
+
+    resetForm();
   };
 
-  return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="w-full max-w-md rounded-xl p-6
-                      bg-gradient-to-br from-slate-900 to-slate-800
-                      border border-slate-700 shadow-2xl">
+  if (!isOpen) return null;
 
-        <h2 className="text-xl font-semibold text-white mb-6">
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+      <div className="bg-slate-900 p-6 rounded-xl w-full max-w-md">
+        <h2 className="text-xl font-semibold mb-4">
           {initialData ? "Edit Product" : "Add Product"}
         </h2>
 
-        {/* Product Name */}
         <input
-          type="text"
-          name="name"
+          className="w-full mb-3 p-2 rounded bg-slate-800"
           placeholder="Product name"
-          value={form.name}
-          onChange={handleChange}
-          className="w-full mb-4 px-4 py-3 rounded-lg
-                     bg-slate-800 text-white placeholder-gray-400
-                     border border-slate-700
-                     focus:outline-none focus:ring-2 focus:ring-blue-600"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
         />
 
-        {/* Category */}
+        {/* ✅ CATEGORY DROPDOWN */}
         <select
-          name="category"
-          value={form.category}
-          onChange={handleChange}
-          className="w-full mb-4 px-4 py-3 rounded-lg
-                     bg-slate-800 text-white
-                     border border-slate-700
-                     focus:outline-none focus:ring-2 focus:ring-blue-600"
+          className="w-full mb-3 p-2 rounded bg-slate-800"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
         >
           <option value="">Select category</option>
           {categories.map((c) => (
-            <option key={c._id} value={c.name}>
+            <option key={c._id} value={c._id}>
               {c.name}
             </option>
           ))}
         </select>
 
-        {/* Price */}
         <input
           type="number"
-          name="price"
+          className="w-full mb-3 p-2 rounded bg-slate-800"
           placeholder="Price"
-          value={form.price}
-          onChange={handleChange}
-          className="w-full mb-4 px-4 py-3 rounded-lg
-                     bg-slate-800 text-white placeholder-gray-400
-                     border border-slate-700
-                     focus:outline-none focus:ring-2 focus:ring-blue-600"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
         />
 
-        {/* Quantity */}
         <input
           type="number"
-          name="quantity"
+          className="w-full mb-4 p-2 rounded bg-slate-800"
           placeholder="Quantity"
-          value={form.quantity}
-          onChange={handleChange}
-          className="w-full mb-6 px-4 py-3 rounded-lg
-                     bg-slate-800 text-white placeholder-gray-400
-                     border border-slate-700
-                     focus:outline-none focus:ring-2 focus:ring-blue-600"
+          value={quantity}
+          onChange={(e) => setQuantity(e.target.value)}
         />
 
-        {/* Actions */}
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg
-                       bg-slate-700 text-white
-                       hover:bg-slate-600 transition"
+            className="px-4 py-2 rounded bg-slate-700"
           >
             Cancel
           </button>
-
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 rounded-lg
-                       bg-blue-600 text-white
-                       hover:bg-blue-700 transition"
+            className="px-4 py-2 rounded bg-blue-600"
           >
             Save
           </button>

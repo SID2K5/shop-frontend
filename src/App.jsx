@@ -1,34 +1,24 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import Login from "./pages/Login";
+import MainLayout from "./layout/MainLayout";
 import Dashboard from "./pages/Dashboard";
 import Categories from "./pages/Categories";
 import Products from "./pages/Products";
-import Admin from "./pages/Admin";
-import User from "./pages/User";
-import ProtectedRoute from "./routes/ProtectedRoute";
-import MainLayout from "./layout/MainLayout";
 
 function App() {
   return (
     <Routes>
-      {/* Public */}
-      <Route path="/login" element={<Login />} />
+      {/* Redirect root to dashboard */}
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-      {/* Protected */}
-      <Route
-        element={
-          <ProtectedRoute>
-            <MainLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route path="/" element={<Navigate to="/dashboard" />} />
+      {/* Layout with pages */}
+      <Route element={<MainLayout />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/products" element={<Products />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/user" element={<User />} />
       </Route>
+
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 }

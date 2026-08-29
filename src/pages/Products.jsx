@@ -1,18 +1,19 @@
 import { useEffect, useState, useMemo } from "react";
-import api from "../api/axios";
+import {
+  fetchProducts,
+  addProduct,
+  editProduct,
+  removeProduct,
+} from "../services/productService";
+import { fetchCategories } from "../services/categoryService";
 
 import Card from "../components/Card";
 import ProductModal from "../components/ProductModal";
 import DeleteConfirmModal from "../components/DeleteConfirmModal";
-import StockHistoryModal from "../components/StockHistoryModal"; // ✅ ADDED
-import { io } from "socket.io-client";
+import StockHistoryModal from "../components/StockHistoryModal";
 
 const ITEMS_PER_PAGE = 5;
-const LOW_STOCK_LIMIT = 5;
-
-const socket = io(import.meta.env.VITE_API_BASE_URL, {
-  withCredentials: true,
-});
+const LOW_STOCK_LIMIT = 1;
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -30,91 +31,62 @@ export default function Products() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
 
-  // ✅ HISTORY STATE (ADDED)
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [historyProduct, setHistoryProduct] = useState(null);
 
   /* ================= FETCH ================= */
-  const fetchProducts = async () => {
-    const res = await api.get("/products");
-    setProducts(res.data);
+  const loadProducts = async () => {
+    const data = await fetchProducts();
+    setProducts(data);
   };
 
-  const fetchCategories = async () => {
-    const res = await api.get("/categories");
-    setCategories(res.data);
+  const loadCategories = async () => {
+    const data = await fetchCategories();
+    setCategories(data);
   };
 
   useEffect(() => {
-    fetchProducts();
-    fetchCategories();
-  }, []);
-
-  /* ================= REALTIME ================= */
-  useEffect(() => {
-    socket.on("productsUpdated", fetchProducts);
-    return () => socket.off("productsUpdated");
+    loadProducts();
+    loadCategories();
   }, []);
 
   /* ================= SAVE ================= */
   const handleSave = async (product) => {
-    const selectedCategory = categories.find(
-      (c) => c.name === product.category
-    );
-
-    if (!selectedCategory) {
-      alert("Invalid category selected");
-      return;
-    }
-
     const payload = {
       name: product.name,
       price: Number(product.price),
       quantity: Number(product.quantity),
-      category: selectedCategory._id,
+      category: product.category, // ObjectId ONLY
     };
 
     if (editingProduct) {
-      await api.put(`/products/${editingProduct._id}`, payload);
+      await editProduct(editingProduct._id, payload);
     } else {
-      await api.post("/products", payload);
+      await addProduct(payload);
     }
 
     setIsModalOpen(false);
     setEditingProduct(null);
-    fetchProducts();
+    loadProducts();
   };
 
   /* ================= DELETE ================= */
   const handleDelete = async () => {
-    await api.delete(`/products/${productToDelete._id}`);
+    await removeProduct(productToDelete._id);
     setIsDeleteOpen(false);
     setProductToDelete(null);
-    fetchProducts();
+    loadProducts();
   };
-
-  /* ================= ACTIVE CATEGORIES ================= */
-  const activeCategoryNames = useMemo(
-    () =>
-      categories
-        .filter((c) => c.status === "Active")
-        .map((c) => c.name),
-    [categories]
-  );
 
   /* ================= FILTER + SORT ================= */
   const processedProducts = useMemo(() => {
     let data = [...products];
 
-    data = data.filter(
-      (p) =>
-        activeCategoryNames.includes(p.category?.name) ||
-        activeCategoryNames.length === 0
-    );
-
-    data = data.filter((p) =>
-      p.name.toLowerCase().includes(search.toLowerCase())
-    );
+    if (search) {
+      data = data.filter((p) =>
+        p.name.toLowerCase().includes(search.toLowerCase())
+      );
+    }
 
     if (categoryFilter !== "All") {
       data = data.filter(
@@ -131,14 +103,7 @@ export default function Products() {
     if (sortBy === "qty-desc") data.sort((a, b) => b.quantity - a.quantity);
 
     return data;
-  }, [
-    products,
-    search,
-    categoryFilter,
-    stockFilter,
-    sortBy,
-    activeCategoryNames,
-  ]);
+  }, [products, search, categoryFilter, stockFilter, sortBy]);
 
   /* ================= PAGINATION ================= */
   const totalPages = Math.ceil(processedProducts.length / ITEMS_PER_PAGE);
@@ -150,13 +115,19 @@ export default function Products() {
 
   /* ================= STATS ================= */
   const total = processedProducts.length;
-  const inStock = processedProducts.filter(
-    (p) => p.quantity >= LOW_STOCK_LIMIT
-  ).length;
+
+  const outStock = processedProducts.filter(
+   (p) => p.quantity === 0
+   ).length;
+
   const lowStock = processedProducts.filter(
-    (p) => p.quantity > 0 && p.quantity < LOW_STOCK_LIMIT
-  ).length;
-  const outStock = processedProducts.filter((p) => p.quantity === 0).length;
+   (p) => p.quantity === LOW_STOCK_LIMIT
+    ).length;
+
+  const inStock = processedProducts.filter(
+   (p) => p.quantity > LOW_STOCK_LIMIT
+    ).length;
+
 
   return (
     <div className="p-6 text-gray-200">
@@ -207,7 +178,9 @@ export default function Products() {
           {categories
             .filter((c) => c.status === "Active")
             .map((c) => (
-              <option key={c._id}>{c.name}</option>
+              <option key={c._id} value={c.name}>
+                {c.name}
+              </option>
             ))}
         </select>
 
@@ -260,18 +233,18 @@ export default function Products() {
                 <td className="p-3">₹{p.price}</td>
                 <td className="p-3">{p.quantity}</td>
                 <td className="p-3">
-                  {p.quantity === 0
-                    ? "❌ Out"
-                    : p.quantity < LOW_STOCK_LIMIT
-                    ? "⚠️ Low"
-                    : "✅ In"}
+                 {p.quantity === 0
+                  ? "❌ Out"
+                  : p.quantity === LOW_STOCK_LIMIT
+                  ? "⚠️ Low"
+                  : "✅ In"}
                 </td>
                 <td className="p-3 space-x-3">
                   <button
                     onClick={() => {
                       setEditingProduct({
                         ...p,
-                        category: p.category?.name,
+                        category: p.category?._id,
                       });
                       setIsModalOpen(true);
                     }}
@@ -281,12 +254,10 @@ export default function Products() {
                   </button>
 
                   <button
-                    onClick={async () => {
-                      const res = await api.get(`/api/products/${p._id}`);
-                      setHistoryProduct(res.data);
+                    onClick={() => {
+                      setHistoryProduct(p);
                       setIsHistoryOpen(true);
                     }}
-
                     className="text-purple-400"
                   >
                     History
@@ -348,7 +319,6 @@ export default function Products() {
         onClose={() => setIsModalOpen(false)}
         onSave={handleSave}
         initialData={editingProduct}
-        categories={categories.filter((c) => c.status === "Active")}
       />
 
       <DeleteConfirmModal
@@ -357,7 +327,6 @@ export default function Products() {
         onConfirm={handleDelete}
       />
 
-      {/* ✅ HISTORY MODAL */}
       <StockHistoryModal
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}

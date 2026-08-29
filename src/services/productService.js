@@ -1,26 +1,36 @@
-import api from "./api";
+import {
+  getProducts as getProductsApi,
+  createProduct as createProductApi,
+  updateProduct as updateProductApi,
+  deleteProduct as deleteProductApi,
+  getProductById as getProductByIdApi,
+} from "../api/productApi";
 
-// GET PRODUCTS
-export const getProducts = () => {
-  return api.get("/products");
+/* ================= PRODUCTS ================= */
+
+export const fetchProducts = async () => {
+  const res = await getProductsApi();
+  return res.data;
 };
 
-// CREATE PRODUCT
-export const createProduct = (data) => {
-  return api.post("/products", data);
+export const addProduct = async (data) => {
+  const res = await createProductApi(data);
+  return res.data;
 };
 
-// UPDATE PRODUCT
-export const updateProduct = (id, data) => {
-  return api.put(`/products/${id}`, data);
+export const editProduct = async (id, data) => {
+  const res = await updateProductApi(id, data);
+  return res.data;
 };
 
-// DELETE PRODUCT
-export const deleteProduct = (id) => {
-  return api.delete(`/products/${id}`);
+export const removeProduct = async (id) => {
+  const res = await deleteProductApi(id);
+  return res.data;
 };
 
-// GET STOCK HISTORY (optional standalone)
-export const getProductHistory = (id) => {
-  return api.get(`/products/${id}/history`);
+/* ================= SINGLE PRODUCT (FOR HISTORY) ================= */
+
+export const fetchProductById = async (id) => {
+  const res = await getProductByIdApi(id);
+  return res.data;
 };
