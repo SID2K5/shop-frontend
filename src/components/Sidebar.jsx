@@ -26,84 +26,68 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="w-64 min-h-screen bg-[#080d18] border-r border-slate-800 flex flex-col">
+    <aside className="w-44 min-h-screen bg-[#222a3d] flex flex-col border-r border-[#30394d]">
       
-      {/* BRAND */}
-      <div className="px-6 py-7 border-b border-slate-800">
-        <div className="flex items-center gap-3">
-          
-          {/* LOGO */}
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-900/30">
-            <Boxes size={23} className="text-white" />
+      {/* ================= BRAND ================= */}
+      <div className="flex flex-col items-center pt-7 pb-6">
+        
+        {/* Logo + Brand */}
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded bg-[#42c0d4] flex items-center justify-center shadow-lg shadow-cyan-500/20">
+            <Boxes size={15} strokeWidth={2.2} className="text-[#183047]" />
           </div>
 
           <div>
-            <h1 className="text-lg font-bold text-white tracking-wide">
-              Stock Manager
+            <h1 className="text-[17px] font-bold leading-5 text-[#d8e3ee]">
+              Stock
+              <br />
+              Manager
             </h1>
-
-            <p className="text-xs text-slate-500 mt-0.5">
-              Inventory System
-            </p>
           </div>
         </div>
-      </div>
 
-      {/* NAVIGATION */}
-      <div className="flex-1 px-4 py-6">
-        
-        <p className="px-3 mb-3 text-[11px] font-semibold tracking-widest text-slate-500 uppercase">
-          Main Menu
+        {/* Subtitle */}
+        <p className="mt-2 text-[5px] tracking-wide uppercase text-[#8c9aac]">
+          Inventory System
         </p>
-
-        <nav className="space-y-2">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={({ isActive }) =>
-                  `group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-                    isActive
-                      ? "bg-blue-600 text-white shadow-lg shadow-blue-900/30"
-                      : "text-slate-400 hover:bg-slate-800 hover:text-white"
-                  }`
-                }
-              >
-                <Icon
-                  size={20}
-                  className="transition-transform duration-200 group-hover:scale-110"
-                />
-
-                <span className="font-medium">
-                  {item.name}
-                </span>
-
-                {/* ACTIVE INDICATOR */}
-                <span className="ml-auto text-xs opacity-0 group-hover:opacity-100 transition-opacity">
-                  →
-                </span>
-              </NavLink>
-            );
-          })}
-        </nav>
       </div>
 
-      {/* FOOTER */}
-      <div className="p-4 border-t border-slate-800">
-        <div className="rounded-xl bg-slate-900/70 border border-slate-800 p-3">
-          <p className="text-xs font-medium text-slate-300">
-            Inventory Management
-          </p>
+      {/* ================= NAVIGATION ================= */}
+      <nav className="px-2 mt-1 space-y-1.5">
+        {navItems.map((item) => {
+          const Icon = item.icon;
 
-          <p className="text-[11px] text-slate-500 mt-1">
-            Manage your stock efficiently
-          </p>
-        </div>
-      </div>
+          return (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              className={({ isActive }) =>
+                `group flex items-center gap-3 px-3 py-3 rounded-md transition-all duration-200 ${
+                  isActive
+                    ? "bg-[#3db5cb] text-[#173044] shadow-md shadow-cyan-900/20"
+                    : "text-[#c0cad6] hover:bg-[#2d374c] hover:text-white"
+                }`
+              }
+            >
+              <Icon
+                size={14}
+                strokeWidth={2}
+                className="flex-shrink-0"
+              />
 
+              <span className="text-[11px] font-medium">
+                {item.name}
+              </span>
+            </NavLink>
+          );
+        })}
+      </nav>
+
+      {/* ================= BOTTOM SPACER ================= */}
+      <div className="flex-1" />
+
+      {/* ================= BOTTOM BORDER AREA ================= */}
+      <div className="border-t border-[#30394d] h-4" />
     </aside>
   );
 };
