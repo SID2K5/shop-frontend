@@ -39,7 +39,6 @@ export default function Categories() {
     } else {
       await createCategory(data);
     }
-
     setModalOpen(false);
     setSelectedCategory(null);
     loadCategories();
@@ -59,29 +58,29 @@ export default function Categories() {
   };
 
   return (
-    <div className="text-[var(--text-primary)]">
+    <div>
       {/* Header */}
       <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-500/20 via-blue-500/20 to-purple-600/20 border border-cyan-400/20 flex items-center justify-center shadow-lg shadow-cyan-950/30">
-            <Tag size={22} className="text-cyan-400" />
+        <div className="flex items-center gap-3.5">
+          <div
+            className="w-12 h-12 rounded-2xl flex items-center justify-center"
+            style={{
+              background: "linear-gradient(135deg, var(--cyan-soft, rgba(0,212,255,0.12)), var(--accent-soft))",
+              border: "1px solid rgba(0,212,255,0.15)",
+              boxShadow: "0 4px 20px rgba(0,212,255,0.1), inset 0 1px 0 rgba(255,255,255,0.06)",
+            }}
+          >
+            <Tag size={22} className="text-[var(--cyan)]" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
-              Categories
-            </h1>
-            <p className="text-xs text-[var(--text-muted)]">
-              Manage all your product categories
-            </p>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">Categories</h1>
+            <p className="text-[11px] text-[var(--text-muted)]">Manage all your product categories</p>
           </div>
         </div>
 
         <button
-          onClick={() => {
-            setSelectedCategory(null);
-            setModalOpen(true);
-          }}
-          className="btn btn-primary gap-2 px-5 py-2.5 text-sm"
+          onClick={() => { setSelectedCategory(null); setModalOpen(true); }}
+          className="btn btn-primary gap-2"
         >
           <Plus size={16} />
           Add Category
@@ -89,80 +88,70 @@ export default function Categories() {
       </div>
 
       {/* Table */}
-      <div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--bg-elevated)]/50 overflow-hidden">
+      <div className="glass-static rounded-[var(--radius-xl)] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[540px]">
             <thead>
               <tr>
-                <th className="px-5 py-4">Name</th>
-                <th className="px-5 py-4">Status</th>
-                <th className="px-5 py-4 text-center">Actions</th>
+                <th className="px-5 py-3.5">Name</th>
+                <th className="px-5 py-3.5">Status</th>
+                <th className="px-5 py-3.5 text-center">Actions</th>
               </tr>
             </thead>
-
             <tbody>
               {categories.map((c) => (
                 <tr key={c._id} className="group">
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900 border border-cyan-400/15 group-hover:border-cyan-400/40 transition">
-                        <Tag
-                          size={16}
-                          className="text-cyan-400 group-hover:scale-110 transition-transform"
-                        />
+                      <div
+                        className="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-105"
+                        style={{
+                          background: "rgba(0,212,255,0.08)",
+                          border: "1px solid rgba(0,212,255,0.12)",
+                          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
+                        }}
+                      >
+                        <Tag size={15} className="text-[var(--cyan)]" />
                       </div>
-                      <span className="font-medium text-slate-200 group-hover:text-white transition">
-                        {c.name}
-                      </span>
+                      <span className="font-semibold text-white">{c.name}</span>
                     </div>
                   </td>
-
                   <td className="px-5 py-3.5">
-                    <span
-                      className={`badge ${
-                        c.status === "Active"
-                          ? "badge-success"
-                          : "badge-danger"
-                      }`}
-                    >
+                    <span className={`badge ${c.status === "Active" ? "badge-success" : "badge-danger"}`}>
                       <span
-                        className={`w-1.5 h-1.5 rounded-full ${
-                          c.status === "Active"
-                            ? "bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.6)]"
-                            : "bg-red-400 shadow-[0_0_6px_rgba(248,113,113,0.6)]"
-                        }`}
+                        className="w-1.5 h-1.5 rounded-full"
+                        style={{
+                          background: c.status === "Active" ? "var(--success)" : "var(--danger)",
+                          boxShadow: c.status === "Active"
+                            ? "0 0 6px rgba(52,211,153,0.6)"
+                            : "0 0 6px rgba(248,113,113,0.6)",
+                        }}
                       />
                       {c.status}
                     </span>
                   </td>
-
                   <td className="px-5 py-3.5">
                     <div className="flex items-center justify-center gap-2">
                       <button
-                        onClick={() => {
-                          setSelectedCategory(c);
-                          setModalOpen(true);
-                        }}
-                        title="Edit Category"
-                        className="w-9 h-9 rounded-lg flex items-center justify-center text-blue-400 bg-blue-500/5 border border-blue-400/20 hover:bg-blue-500/15 hover:border-blue-400/40 transition"
+                        onClick={() => { setSelectedCategory(c); setModalOpen(true); }}
+                        className="action-btn action-btn-blue"
                       >
-                        <Pencil size={15} />
+                        <Pencil size={14} />
+                        Edit
                       </button>
-
                       <button
                         onClick={() => toggleStatus(c)}
-                        title="Toggle Status"
-                        className="w-9 h-9 rounded-lg flex items-center justify-center text-yellow-400 bg-yellow-500/5 border border-yellow-400/20 hover:bg-yellow-500/15 hover:border-yellow-400/40 transition"
+                        className="action-btn action-btn-yellow"
                       >
-                        <Power size={15} />
+                        <Power size={14} />
+                        {c.status === "Active" ? "Disable" : "Enable"}
                       </button>
-
                       <button
                         onClick={() => setDeleteId(c._id)}
-                        title="Delete Category"
-                        className="w-9 h-9 rounded-lg flex items-center justify-center text-red-400 bg-red-500/5 border border-red-400/20 hover:bg-red-500/15 hover:border-red-400/40 transition"
+                        className="action-btn action-btn-red"
                       >
-                        <Trash2 size={15} />
+                        <Trash2 size={14} />
+                        Delete
                       </button>
                     </div>
                   </td>
@@ -175,26 +164,19 @@ export default function Categories() {
         {/* Empty state */}
         {categories.length === 0 && (
           <div className="py-16 flex flex-col items-center justify-center text-center">
-            <div className="w-14 h-14 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-default)] flex items-center justify-center mb-4">
+            <div className="w-14 h-14 rounded-2xl glass flex items-center justify-center mb-4">
               <Tag size={24} className="text-[var(--text-muted)]" />
             </div>
-            <h3 className="text-base font-semibold text-slate-300">
-              No categories yet
-            </h3>
-            <p className="mt-1 text-sm text-[var(--text-muted)]">
-              Create your first category to start organizing your products.
-            </p>
+            <h3 className="text-base font-semibold text-slate-300">No categories yet</h3>
+            <p className="mt-1 text-sm text-[var(--text-muted)]">Create your first category to start organizing your products.</p>
           </div>
         )}
 
         {/* Footer */}
         {categories.length > 0 && (
-          <div className="px-5 py-3 border-t border-[var(--border-default)]">
-            <p className="text-xs text-[var(--text-muted)]">
-              Total categories{" "}
-              <span className="font-semibold text-slate-300">
-                {categories.length}
-              </span>
+          <div className="px-5 py-3.5 border-t border-[var(--glass-border)]">
+            <p className="text-[11px] text-[var(--text-muted)]">
+              Total categories <span className="font-semibold text-white">{categories.length}</span>
             </p>
           </div>
         )}
@@ -206,31 +188,30 @@ export default function Categories() {
           <div className="modal w-full max-w-md relative">
             <button
               onClick={() => setDeleteId(null)}
-              className="absolute top-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-surface)] transition"
+              className="absolute top-4 right-4 w-8 h-8 rounded-xl flex items-center justify-center text-[var(--text-muted)] hover:text-white hover:bg-[var(--glass-bg)] transition"
             >
               <X size={16} />
             </button>
 
-            <div className="w-12 h-12 rounded-xl bg-[var(--danger-muted)] border border-red-500/20 flex items-center justify-center mb-4">
-              <AlertTriangle size={22} className="text-red-400" />
+            <div
+              className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
+              style={{
+                background: "var(--danger-soft)",
+                border: "1px solid rgba(248,113,113,0.15)",
+                boxShadow: "0 4px 20px rgba(248,113,113,0.1), inset 0 1px 0 rgba(255,255,255,0.04)",
+              }}
+            >
+              <AlertTriangle size={22} className="text-[var(--danger)]" />
             </div>
 
             <h2 className="text-lg font-bold text-white">Delete Category?</h2>
             <p className="mt-2 text-sm text-[var(--text-secondary)] leading-relaxed">
-              This action cannot be undone. The category will be permanently
-              removed from your inventory system.
+              This action cannot be undone. The category will be permanently removed from your inventory system.
             </p>
 
             <div className="flex justify-end gap-3 mt-6">
-              <button
-                onClick={() => setDeleteId(null)}
-                className="btn btn-secondary text-sm"
-              >
-                Cancel
-              </button>
-              <button onClick={handleDelete} className="btn btn-danger text-sm">
-                Delete Category
-              </button>
+              <button onClick={() => setDeleteId(null)} className="btn btn-secondary text-sm">Cancel</button>
+              <button onClick={handleDelete} className="btn btn-danger text-sm">Delete Category</button>
             </div>
           </div>
         </div>
@@ -238,10 +219,7 @@ export default function Categories() {
 
       <CategoryModal
         isOpen={modalOpen}
-        onClose={() => {
-          setModalOpen(false);
-          setSelectedCategory(null);
-        }}
+        onClose={() => { setModalOpen(false); setSelectedCategory(null); }}
         onSave={handleSave}
         initialData={selectedCategory}
       />

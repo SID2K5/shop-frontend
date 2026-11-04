@@ -25,61 +25,79 @@ export default function Sidebar({ isOpen, onClose }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 bg-[rgba(5,8,22,0.6)] backdrop-blur-sm z-40 lg:hidden"
             onClick={onClose}
           />
         )}
       </AnimatePresence>
 
-      {/* Sidebar */}
+      {/* Sidebar panel */}
       <aside
         className={`
-          fixed top-0 left-0 h-full z-50 w-[240px]
-          bg-[var(--sidebar-bg)] flex flex-col
-          border-r border-[rgba(6,182,212,0.12)]
-          transition-transform duration-300 ease-out
+          fixed top-0 left-0 h-full z-50
+          w-[var(--sidebar-width)] flex flex-col
+          transition-transform duration-300 ease-[cubic-bezier(0.25,0.46,0.45,0.94)]
           lg:static lg:translate-x-0 lg:z-auto
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
         `}
+        style={{
+          background: "rgba(8, 12, 30, 0.75)",
+          backdropFilter: "blur(40px)",
+          WebkitBackdropFilter: "blur(40px)",
+          borderRight: "1px solid var(--glass-border)",
+        }}
       >
+        {/* Top shine */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
+
         {/* Brand */}
-        <div className="px-5 pt-6 pb-2">
+        <div className="px-6 pt-7 pb-2">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-[10px] bg-gradient-to-br from-cyan-400 via-cyan-500 to-indigo-500 flex items-center justify-center shadow-lg shadow-cyan-900/30">
-                <Warehouse size={18} strokeWidth={2} className="text-white" />
+            <div className="flex items-center gap-3.5">
+              {/* Spatial logo */}
+              <div className="relative group">
+                <div className="absolute inset-0 bg-[var(--accent)] rounded-2xl blur-xl opacity-25 group-hover:opacity-40 transition-opacity" />
+                <div
+                  className="relative w-11 h-11 rounded-2xl flex items-center justify-center"
+                  style={{
+                    background: "linear-gradient(135deg, var(--accent), #6c5ce7)",
+                    boxShadow: "0 4px 16px rgba(79,142,255,0.25), inset 0 1px 0 rgba(255,255,255,0.15)",
+                  }}
+                >
+                  <Warehouse size={20} strokeWidth={2} className="text-white" />
+                </div>
               </div>
+
               <div>
-                <h1 className="text-[15px] font-bold leading-tight text-white">
+                <h1 className="text-base font-bold leading-tight text-white">
                   Stock
                 </h1>
-                <h1 className="text-[15px] font-bold leading-tight bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent">
+                <h1 className="text-base font-bold leading-tight bg-gradient-to-r from-[var(--cyan)] to-[var(--accent)] bg-clip-text text-transparent">
                   Manager
                 </h1>
               </div>
             </div>
 
-            {/* Close button (mobile) */}
             <button
               onClick={onClose}
-              className="lg:hidden w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition"
+              className="lg:hidden w-8 h-8 rounded-xl glass flex items-center justify-center text-[var(--text-muted)] hover:text-white transition"
             >
-              <X size={18} />
+              <X size={16} />
             </button>
           </div>
 
           {/* Divider */}
-          <div className="mt-5 h-px w-full bg-gradient-to-r from-cyan-400/40 via-slate-600/30 to-transparent" />
+          <div className="mt-6 h-px w-full bg-gradient-to-r from-[var(--accent)]/20 via-white/[0.05] to-transparent" />
         </div>
 
         {/* Navigation */}
-        <div className="px-3 pt-5 flex-1">
-          <p className="px-3 mb-3 text-[10px] font-bold tracking-[0.2em] text-indigo-300/70 uppercase">
+        <div className="px-4 pt-6 flex-1">
+          <p className="px-3 mb-4 text-[10px] font-bold tracking-[0.22em] text-[var(--text-muted)] uppercase">
             Workspace
           </p>
 
-          <nav className="space-y-1">
+          <nav className="space-y-1.5">
             {navItems.map((item) => {
               const Icon = item.icon;
 
@@ -89,38 +107,59 @@ export default function Sidebar({ isOpen, onClose }) {
                   to={item.path}
                   onClick={onClose}
                   className={({ isActive }) =>
-                    `group relative flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] transition-all duration-200 ${
+                    `group relative flex items-center gap-3.5 px-4 py-3 rounded-[var(--radius-md)] transition-all duration-300 ${
                       isActive
-                        ? "bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-500 text-[#061525] shadow-md shadow-cyan-900/20"
-                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
+                        ? "text-white"
+                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                     }`
+                  }
+                  style={({ isActive }) =>
+                    isActive
+                      ? {
+                          background: "linear-gradient(135deg, rgba(79,142,255,0.18), rgba(108,92,231,0.12))",
+                          border: "1px solid rgba(79,142,255,0.2)",
+                          boxShadow: "0 4px 16px rgba(79,142,255,0.1), inset 0 1px 0 rgba(255,255,255,0.06)",
+                        }
+                      : {
+                          background: "transparent",
+                          border: "1px solid transparent",
+                        }
                   }
                 >
                   {({ isActive }) => (
                     <>
+                      {/* Active glow indicator */}
                       {isActive && (
-                        <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-full bg-cyan-300 shadow-[0_0_8px_rgba(34,211,238,0.6)]" />
+                        <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-full bg-[var(--accent)] shadow-[0_0_12px_var(--accent-glow)]" />
                       )}
 
                       <div
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${
                           isActive
-                            ? "bg-white/10"
-                            : "bg-indigo-500/10 group-hover:bg-cyan-400/10"
+                            ? ""
+                            : "group-hover:bg-[var(--glass-bg)]"
                         }`}
+                        style={
+                          isActive
+                            ? {
+                                background: "rgba(79,142,255,0.15)",
+                                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
+                              }
+                            : {}
+                        }
                       >
                         <Icon
-                          size={16}
+                          size={17}
                           strokeWidth={2}
-                          className={
+                          className={`transition-all duration-300 ${
                             isActive
-                              ? "text-[#082238]"
-                              : "text-indigo-300 group-hover:text-cyan-300"
-                          }
+                              ? "text-[var(--accent)]"
+                              : "text-[var(--text-muted)] group-hover:text-[var(--cyan)]"
+                          }`}
                         />
                       </div>
 
-                      <span className="text-[13px] font-semibold">
+                      <span className="text-[13px] font-semibold tracking-[-0.01em]">
                         {item.name}
                       </span>
                     </>
@@ -132,13 +171,13 @@ export default function Sidebar({ isOpen, onClose }) {
         </div>
 
         {/* Footer */}
-        <div className="px-3 pb-5">
-          <div className="h-px w-full bg-[var(--border-default)] mb-3" />
-          <div className="flex items-center gap-3 px-3 py-2 rounded-[var(--radius-md)] text-slate-500 hover:text-slate-300 hover:bg-slate-800/50 transition cursor-pointer">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-800/50">
-              <Settings size={15} className="text-slate-500" />
+        <div className="px-4 pb-6">
+          <div className="h-px w-full bg-[var(--glass-border)] mb-3" />
+          <div className="flex items-center gap-3 px-4 py-2.5 rounded-[var(--radius-md)] text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--glass-bg)] transition-all cursor-pointer">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--glass-bg)]">
+              <Settings size={14} />
             </div>
-            <span className="text-[12px] font-medium">Settings</span>
+            <span className="text-xs font-medium">Settings</span>
           </div>
         </div>
       </aside>
