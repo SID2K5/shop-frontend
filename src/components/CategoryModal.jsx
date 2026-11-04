@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { X, Tag } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function CategoryModal({
   isOpen,
@@ -19,46 +21,94 @@ export default function CategoryModal({
     }
   }, [initialData, isOpen]);
 
-  if (!isOpen) return null;
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!name) return;
+    onSave({ name, status });
+  };
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 w-full max-w-md">
-        <h2 className="text-lg font-semibold text-white mb-4">
-          {initialData ? "Edit Category" : "Add Category"}
-        </h2>
-
-        <input
-          className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 mb-4 text-white"
-          placeholder="Category name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-
-        <select
-          className="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 mb-6 text-white"
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-        >
-          <option value="Active">Active</option>
-          <option value="Inactive">Inactive</option>
-        </select>
-
-        <div className="flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white"
+    <AnimatePresence>
+      {isOpen && (
+        <div className="modal-backdrop" onClick={onClose}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="modal w-full max-w-md mx-4"
+            onClick={(e) => e.stopPropagation()}
           >
-            Cancel
-          </button>
-          <button
-            onClick={() => onSave({ name, status })}
-            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            Save
-          </button>
+            {/* Header */}
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-400/20 flex items-center justify-center">
+                  <Tag size={18} className="text-cyan-400" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-white">
+                    {initialData ? "Edit Category" : "Add Category"}
+                  </h2>
+                  <p className="text-xs text-[var(--text-muted)]">
+                    {initialData
+                      ? "Update the category details below"
+                      : "Create a new category for your products"}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={onClose}
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-white hover:bg-[var(--bg-surface)] transition"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1.5">
+                  Category Name
+                </label>
+                <input
+                  className="w-full text-sm"
+                  placeholder="Enter category name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1.5">
+                  Status
+                </label>
+                <select
+                  className="w-full text-sm"
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                >
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="btn btn-secondary text-sm"
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary text-sm">
+                  {initialData ? "Save Changes" : "Add Category"}
+                </button>
+              </div>
+            </form>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 }
