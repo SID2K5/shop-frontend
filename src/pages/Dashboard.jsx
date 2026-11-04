@@ -30,16 +30,15 @@ const CustomTooltip = ({ active, payload, label, formatter }) => {
   return (
     <div
       style={{
-        background: "rgba(15, 20, 50, 0.9)",
-        backdropFilter: "blur(16px)",
-        border: "1px solid var(--glass-border-hover)",
+        background: "var(--bg-card)",
+        border: "1px solid var(--border)",
         borderRadius: "var(--radius-sm)",
         padding: "8px 14px",
-        boxShadow: "var(--shadow-elevated)",
+        boxShadow: "var(--shadow-lg)",
       }}
     >
       <p className="text-[var(--text-muted)] text-[10px] mb-0.5">{label}</p>
-      <p className="text-white font-bold text-sm">{display}</p>
+      <p className="text-[var(--text-primary)] font-bold text-sm">{display}</p>
     </div>
   );
 };
@@ -89,11 +88,11 @@ export default function Dashboard() {
   if (!dashboard) return null;
 
   const { snapshot, todaySales, todayActivity } = dashboard;
-  const catColors = ["#4f8eff", "#a855f7", "#00d4ff", "#fbbf24", "#34d399", "#f87171"];
+  const catColors = ["#496D83", "#7897AB", "#A9C2D1", "#9AAEBB", "#C8DCE9"];
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+      <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] tracking-tight">
         Dashboard
       </h1>
 
@@ -106,21 +105,24 @@ export default function Dashboard() {
       </div>
 
       {/* Today's Sales */}
-      <div className="glass-static rounded-[var(--radius-xl)] p-5 sm:p-7">
-        <div className="flex items-center gap-3 mb-6">
+      <div
+        className="rounded-[var(--radius-xl)] p-5 sm:p-6"
+        style={{ background: "var(--bg-card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}
+      >
+        <div className="flex items-center gap-3 mb-5">
           <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ background: "var(--success-soft)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}
+            className="w-9 h-9 rounded-lg flex items-center justify-center"
+            style={{ background: "var(--success-light)" }}
           >
-            <ShoppingCart size={18} className="text-[var(--success)]" />
+            <ShoppingCart size={16} className="text-[var(--success)]" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-white">Today's Sales</h2>
+            <h2 className="text-sm font-bold text-[var(--text-primary)]">Today's Sales</h2>
             <p className="text-[11px] text-[var(--text-muted)]">Real-time sales overview</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
           <Card title="Units Sold" value={todaySales.units} icon={<TrendingUp size={14} />} color="green" />
           <Card title="Revenue" value={`₹${todaySales.revenue.toLocaleString()}`} icon={<IndianRupee size={14} />} color="cyan" />
           <Card title="Top Products" value={todaySales.chartData.length} icon={<BarChart3 size={14} />} color="purple" />
@@ -129,19 +131,13 @@ export default function Dashboard() {
         {todaySales.chartData.length === 0 ? (
           <p className="text-[var(--text-muted)] text-sm">No sales recorded today</p>
         ) : (
-          <ResponsiveContainer width="100%" height={240}>
+          <ResponsiveContainer width="100%" height={220}>
             <BarChart data={todaySales.chartData} barCategoryGap="25%">
-              <defs>
-                <linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#34d399" stopOpacity={0.9} />
-                  <stop offset="100%" stopColor="#34d399" stopOpacity={0.15} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
-              <XAxis dataKey="name" stroke="var(--text-muted)" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-              <YAxis stroke="var(--text-muted)" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.02)" }} />
-              <Bar dataKey="qty" fill="url(#salesGrad)" radius={[8, 8, 0, 0]} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+              <XAxis dataKey="name" stroke="var(--text-muted)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis stroke="var(--text-muted)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(73,109,131,0.06)" }} />
+              <Bar dataKey="qty" fill="#496D83" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}
@@ -150,16 +146,19 @@ export default function Dashboard() {
       {/* Inventory + Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
         {/* Chart */}
-        <div className="lg:col-span-3 glass-static rounded-[var(--radius-xl)] p-5 sm:p-7">
-          <div className="flex items-center gap-3 mb-6">
+        <div
+          className="lg:col-span-3 rounded-[var(--radius-xl)] p-5 sm:p-6"
+          style={{ background: "var(--bg-card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}
+        >
+          <div className="flex items-center gap-3 mb-5">
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: "var(--accent-soft)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)" }}
+              className="w-9 h-9 rounded-lg flex items-center justify-center"
+              style={{ background: "var(--primary-light)" }}
             >
-              <BarChart3 size={18} className="text-[var(--accent)]" />
+              <BarChart3 size={16} className="text-[var(--primary)]" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">Inventory by Category</h2>
+              <h2 className="text-sm font-bold text-[var(--text-primary)]">Inventory by Category</h2>
               <p className="text-[11px] text-[var(--text-muted)]">Value distribution across categories</p>
             </div>
           </div>
@@ -167,15 +166,15 @@ export default function Dashboard() {
           {inventoryByCategory.length === 0 ? (
             <p className="text-[var(--text-muted)] text-sm">No active category data</p>
           ) : (
-            <ResponsiveContainer width="100%" height={240}>
+            <ResponsiveContainer width="100%" height={220}>
               <BarChart data={inventoryByCategory} barCategoryGap="25%">
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
-                <XAxis dataKey="category" stroke="var(--text-muted)" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis stroke="var(--text-muted)" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-                <Tooltip content={<CustomTooltip formatter={(v) => `₹${v.toLocaleString()}`} />} cursor={{ fill: "rgba(255,255,255,0.02)" }} />
-                <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                <XAxis dataKey="category" stroke="var(--text-muted)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis stroke="var(--text-muted)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                <Tooltip content={<CustomTooltip formatter={(v) => `₹${v.toLocaleString()}`} />} cursor={{ fill: "rgba(73,109,131,0.06)" }} />
+                <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                   {inventoryByCategory.map((_, i) => (
-                    <Cell key={i} fill={catColors[i % catColors.length]} fillOpacity={0.7} />
+                    <Cell key={i} fill={catColors[i % catColors.length]} />
                   ))}
                 </Bar>
               </BarChart>
@@ -184,36 +183,38 @@ export default function Dashboard() {
         </div>
 
         {/* Activity feed */}
-        <div className="lg:col-span-2 glass-static rounded-[var(--radius-xl)] p-5 sm:p-6">
-          <h2 className="text-base font-bold text-white mb-4">Today's Activity</h2>
+        <div
+          className="lg:col-span-2 rounded-[var(--radius-xl)] p-5 sm:p-6"
+          style={{ background: "var(--bg-card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}
+        >
+          <h2 className="text-sm font-bold text-[var(--text-primary)] mb-4">Today's Activity</h2>
 
           {todayActivity.length === 0 ? (
             <p className="text-[var(--text-muted)] text-sm">No activity today</p>
           ) : (
-            <div className="space-y-2.5 max-h-[320px] overflow-y-auto pr-1">
+            <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
               {todayActivity.map((a, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] transition-all duration-200 hover:bg-[var(--glass-bg)] group"
-                  style={{ border: "1px solid var(--glass-border)" }}
+                  className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] transition-colors hover:bg-[var(--bg-secondary)]"
+                  style={{ border: "1px solid var(--border)" }}
                 >
                   <div
-                    className="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-xl transition-all"
+                    className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg"
                     style={{
                       background:
-                        a.type === "Sold" ? "var(--success-soft)"
-                        : a.type === "Low Stock" ? "var(--warning-soft)"
-                        : "var(--accent-soft)",
-                      boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
+                        a.type === "Sold" ? "var(--success-light)"
+                        : a.type === "Low Stock" ? "var(--warning-light)"
+                        : "var(--primary-light)",
                     }}
                   >
                     {a.type === "Sold" && <TrendingUp size={14} className="text-[var(--success)]" />}
                     {a.type === "Low Stock" && <AlertTriangle size={14} className="text-[var(--warning)]" />}
-                    {a.type === "Stock Added" && <Package size={14} className="text-[var(--accent)]" />}
+                    {a.type === "Stock Added" && <Package size={14} className="text-[var(--primary)]" />}
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white truncate">{a.product}</p>
+                    <p className="text-sm font-medium text-[var(--text-primary)] truncate">{a.product}</p>
                     <p className="text-[10px] text-[var(--text-muted)]">{a.time}</p>
                   </div>
 
@@ -225,7 +226,7 @@ export default function Dashboard() {
                     }`}
                     style={
                       a.type === "Stock Added"
-                        ? { background: "var(--accent-soft)", color: "var(--accent)", borderColor: "rgba(79,142,255,0.15)" }
+                        ? { background: "var(--primary-light)", color: "var(--primary)", borderColor: "var(--powder-blue)" }
                         : {}
                     }
                   >

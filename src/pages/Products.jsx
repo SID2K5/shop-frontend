@@ -94,26 +94,22 @@ export default function Products() {
     <div>
       {/* Header */}
       <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3.5">
+        <div className="flex items-center gap-3">
           <div
-            className="w-12 h-12 rounded-2xl flex items-center justify-center"
-            style={{
-              background: "linear-gradient(135deg, var(--accent-soft), var(--purple-soft))",
-              border: "1px solid rgba(79,142,255,0.15)",
-              boxShadow: "var(--shadow-glow-accent), inset 0 1px 0 rgba(255,255,255,0.06)",
-            }}
+            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ background: "var(--primary-light)" }}
           >
-            <Package size={22} className="text-[var(--accent)]" />
+            <Package size={20} className="text-[var(--primary)]" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">Products</h1>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--text-primary)]">Products</h1>
             <p className="text-[11px] text-[var(--text-muted)]">Manage your inventory and stock</p>
           </div>
         </div>
 
         <button
           onClick={() => { setIsModalOpen(true); setEditingProduct(null); }}
-          className="btn btn-primary gap-2"
+          className="btn btn-primary"
         >
           <Plus size={16} />
           Add Product
@@ -123,15 +119,15 @@ export default function Products() {
       {/* Low stock alert */}
       {lowStock > 0 && (
         <div
-          className="mb-5 px-4 py-3 rounded-[var(--radius-md)] flex items-center gap-2.5 text-sm text-[var(--warning)]"
+          className="mb-5 px-4 py-3 rounded-[var(--radius-md)] flex items-center gap-2.5 text-sm"
           style={{
-            background: "var(--warning-soft)",
-            border: "1px solid rgba(251,191,36,0.15)",
-            boxShadow: "0 2px 12px rgba(251,191,36,0.06)",
+            background: "var(--warning-light)",
+            color: "var(--warning)",
+            border: "1px solid var(--warning-border)",
           }}
         >
           <AlertTriangle size={16} />
-          <strong>{lowStock}</strong> product(s) running low on stock
+          <span><strong>{lowStock}</strong> product(s) running low on stock</span>
         </div>
       )}
 
@@ -144,9 +140,12 @@ export default function Products() {
       </div>
 
       {/* Table container */}
-      <div className="glass-static rounded-[var(--radius-xl)] overflow-hidden">
+      <div
+        className="rounded-[var(--radius-xl)] overflow-hidden"
+        style={{ background: "var(--bg-card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}
+      >
         {/* Filters */}
-        <div className="p-4 flex flex-wrap gap-3 border-b border-[var(--glass-border)]">
+        <div className="p-4 flex flex-wrap gap-3 border-b border-[var(--border)]">
           <div className="relative flex-1 min-w-[180px] max-w-xs">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]" />
             <input
@@ -182,22 +181,22 @@ export default function Products() {
             <thead>
               <tr>
                 {["Product", "Category", "Price", "Qty", "Status", "Actions"].map((h) => (
-                  <th key={h} className={`px-5 py-3.5 ${h === "Actions" ? "text-center" : ""}`}>{h}</th>
+                  <th key={h} className={`px-5 py-3 ${h === "Actions" ? "text-center" : ""}`}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {paginatedProducts.map((p) => (
                 <tr key={p._id} className="group">
-                  <td className="px-5 py-3.5 font-semibold text-white">{p.name}</td>
-                  <td className="px-5 py-3.5 text-[var(--text-secondary)]">{p.category?.name}</td>
-                  <td className="px-5 py-3.5 text-[var(--text-secondary)]" style={{ fontVariantNumeric: "tabular-nums" }}>
+                  <td className="px-5 py-3 font-medium text-[var(--text-primary)]">{p.name}</td>
+                  <td className="px-5 py-3 text-[var(--text-secondary)]">{p.category?.name}</td>
+                  <td className="px-5 py-3 text-[var(--text-secondary)]" style={{ fontVariantNumeric: "tabular-nums" }}>
                     ₹{p.price.toLocaleString()}
                   </td>
-                  <td className="px-5 py-3.5 text-[var(--text-secondary)]" style={{ fontVariantNumeric: "tabular-nums" }}>
+                  <td className="px-5 py-3 text-[var(--text-secondary)]" style={{ fontVariantNumeric: "tabular-nums" }}>
                     {p.quantity}
                   </td>
-                  <td className="px-5 py-3.5">
+                  <td className="px-5 py-3">
                     {p.quantity === 0 ? (
                       <span className="badge badge-danger">Out of Stock</span>
                     ) : p.quantity === LOW_STOCK_LIMIT ? (
@@ -206,7 +205,7 @@ export default function Products() {
                       <span className="badge badge-success">In Stock</span>
                     )}
                   </td>
-                  <td className="px-5 py-3.5">
+                  <td className="px-5 py-3">
                     <div className="flex items-center justify-center gap-2">
                       <button onClick={() => { setEditingProduct({ ...p, category: p.category?._id }); setIsModalOpen(true); }} className="action-btn action-btn-blue">Edit</button>
                       <button onClick={() => { setHistoryProduct(p); setIsHistoryOpen(true); }} className="action-btn action-btn-purple">History</button>
@@ -222,25 +221,28 @@ export default function Products() {
         {/* Empty state */}
         {paginatedProducts.length === 0 && (
           <div className="py-16 flex flex-col items-center justify-center text-center">
-            <div className="w-14 h-14 rounded-2xl glass flex items-center justify-center mb-4">
-              <Package size={24} className="text-[var(--text-muted)]" />
+            <div
+              className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
+              style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)" }}
+            >
+              <Package size={22} className="text-[var(--text-muted)]" />
             </div>
-            <h3 className="text-base font-semibold text-slate-300">No products found</h3>
+            <h3 className="text-sm font-semibold text-[var(--text-primary)]">No products found</h3>
             <p className="mt-1 text-sm text-[var(--text-muted)]">Try adjusting your filters or add a new product.</p>
           </div>
         )}
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="px-5 py-3.5 border-t border-[var(--glass-border)] flex items-center justify-between">
+          <div className="px-5 py-3 border-t border-[var(--border)] flex items-center justify-between">
             <span className="text-[11px] text-[var(--text-muted)]">
               Showing {start + 1}–{Math.min(start + ITEMS_PER_PAGE, processedProducts.length)} of {processedProducts.length}
             </span>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((p) => p - 1)}
-                className="w-8 h-8 rounded-[var(--radius-sm)] flex items-center justify-center glass text-[var(--text-muted)] disabled:opacity-30"
+                className="w-8 h-8 rounded-[var(--radius-sm)] flex items-center justify-center text-[var(--text-muted)] border border-[var(--border)] bg-[var(--bg-card)] disabled:opacity-30 hover:bg-[var(--bg-secondary)] transition"
               >
                 <ChevronLeft size={14} />
               </button>
@@ -248,20 +250,11 @@ export default function Products() {
                 <button
                   key={i}
                   onClick={() => setCurrentPage(i + 1)}
-                  className={`w-8 h-8 rounded-[var(--radius-sm)] flex items-center justify-center text-xs font-semibold transition-all ${
+                  className={`w-8 h-8 rounded-[var(--radius-sm)] flex items-center justify-center text-xs font-semibold transition-all border ${
                     currentPage === i + 1
-                      ? "text-white"
-                      : "glass text-[var(--text-secondary)]"
+                      ? "bg-[var(--primary)] text-white border-[var(--primary)]"
+                      : "bg-[var(--bg-card)] text-[var(--text-secondary)] border-[var(--border)] hover:bg-[var(--bg-secondary)]"
                   }`}
-                  style={
-                    currentPage === i + 1
-                      ? {
-                          background: "linear-gradient(135deg, var(--accent), #6c5ce7)",
-                          border: "1px solid rgba(255,255,255,0.12)",
-                          boxShadow: "var(--shadow-glow-accent)",
-                        }
-                      : {}
-                  }
                 >
                   {i + 1}
                 </button>
@@ -269,7 +262,7 @@ export default function Products() {
               <button
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage((p) => p + 1)}
-                className="w-8 h-8 rounded-[var(--radius-sm)] flex items-center justify-center glass text-[var(--text-muted)] disabled:opacity-30"
+                className="w-8 h-8 rounded-[var(--radius-sm)] flex items-center justify-center text-[var(--text-muted)] border border-[var(--border)] bg-[var(--bg-card)] disabled:opacity-30 hover:bg-[var(--bg-secondary)] transition"
               >
                 <ChevronRight size={14} />
               </button>

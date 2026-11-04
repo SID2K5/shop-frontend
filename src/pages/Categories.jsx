@@ -61,26 +61,22 @@ export default function Categories() {
     <div>
       {/* Header */}
       <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3.5">
+        <div className="flex items-center gap-3">
           <div
-            className="w-12 h-12 rounded-2xl flex items-center justify-center"
-            style={{
-              background: "linear-gradient(135deg, var(--cyan-soft, rgba(0,212,255,0.12)), var(--accent-soft))",
-              border: "1px solid rgba(0,212,255,0.15)",
-              boxShadow: "0 4px 20px rgba(0,212,255,0.1), inset 0 1px 0 rgba(255,255,255,0.06)",
-            }}
+            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ background: "var(--primary-light)" }}
           >
-            <Tag size={22} className="text-[var(--cyan)]" />
+            <Tag size={20} className="text-[var(--primary)]" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">Categories</h1>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--text-primary)]">Categories</h1>
             <p className="text-[11px] text-[var(--text-muted)]">Manage all your product categories</p>
           </div>
         </div>
 
         <button
           onClick={() => { setSelectedCategory(null); setModalOpen(true); }}
-          className="btn btn-primary gap-2"
+          className="btn btn-primary"
         >
           <Plus size={16} />
           Add Category
@@ -88,69 +84,63 @@ export default function Categories() {
       </div>
 
       {/* Table */}
-      <div className="glass-static rounded-[var(--radius-xl)] overflow-hidden">
+      <div
+        className="rounded-[var(--radius-xl)] overflow-hidden"
+        style={{ background: "var(--bg-card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}
+      >
         <div className="overflow-x-auto">
           <table className="w-full min-w-[540px]">
             <thead>
               <tr>
-                <th className="px-5 py-3.5">Name</th>
-                <th className="px-5 py-3.5">Status</th>
-                <th className="px-5 py-3.5 text-center">Actions</th>
+                <th className="px-5 py-3">Name</th>
+                <th className="px-5 py-3">Status</th>
+                <th className="px-5 py-3 text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
               {categories.map((c) => (
                 <tr key={c._id} className="group">
-                  <td className="px-5 py-3.5">
+                  <td className="px-5 py-3">
                     <div className="flex items-center gap-3">
                       <div
-                        className="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-105"
-                        style={{
-                          background: "rgba(0,212,255,0.08)",
-                          border: "1px solid rgba(0,212,255,0.12)",
-                          boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
-                        }}
+                        className="w-8 h-8 rounded-lg flex items-center justify-center"
+                        style={{ background: "var(--primary-light)" }}
                       >
-                        <Tag size={15} className="text-[var(--cyan)]" />
+                        <Tag size={14} className="text-[var(--primary)]" />
                       </div>
-                      <span className="font-semibold text-white">{c.name}</span>
+                      <span className="font-medium text-[var(--text-primary)]">{c.name}</span>
                     </div>
                   </td>
-                  <td className="px-5 py-3.5">
+                  <td className="px-5 py-3">
                     <span className={`badge ${c.status === "Active" ? "badge-success" : "badge-danger"}`}>
                       <span
                         className="w-1.5 h-1.5 rounded-full"
-                        style={{
-                          background: c.status === "Active" ? "var(--success)" : "var(--danger)",
-                          boxShadow: c.status === "Active"
-                            ? "0 0 6px rgba(52,211,153,0.6)"
-                            : "0 0 6px rgba(248,113,113,0.6)",
-                        }}
+                        style={{ background: c.status === "Active" ? "var(--success)" : "var(--danger)" }}
                       />
                       {c.status}
                     </span>
                   </td>
-                  <td className="px-5 py-3.5">
+                  <td className="px-5 py-3">
                     <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => { setSelectedCategory(c); setModalOpen(true); }}
                         className="action-btn action-btn-blue"
                       >
-                        <Pencil size={14} />
+                        <Pencil size={13} />
                         Edit
                       </button>
                       <button
                         onClick={() => toggleStatus(c)}
                         className="action-btn action-btn-yellow"
                       >
-                        <Power size={14} />
+                        <Power size={13} />
                         {c.status === "Active" ? "Disable" : "Enable"}
                       </button>
                       <button
                         onClick={() => setDeleteId(c._id)}
                         className="action-btn action-btn-red"
                       >
-                        <Trash2 size={14} />
+                        <Trash2 size={13} />
                         Delete
                       </button>
                     </div>
@@ -164,19 +154,22 @@ export default function Categories() {
         {/* Empty state */}
         {categories.length === 0 && (
           <div className="py-16 flex flex-col items-center justify-center text-center">
-            <div className="w-14 h-14 rounded-2xl glass flex items-center justify-center mb-4">
-              <Tag size={24} className="text-[var(--text-muted)]" />
+            <div
+              className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
+              style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)" }}
+            >
+              <Tag size={22} className="text-[var(--text-muted)]" />
             </div>
-            <h3 className="text-base font-semibold text-slate-300">No categories yet</h3>
+            <h3 className="text-sm font-semibold text-[var(--text-primary)]">No categories yet</h3>
             <p className="mt-1 text-sm text-[var(--text-muted)]">Create your first category to start organizing your products.</p>
           </div>
         )}
 
         {/* Footer */}
         {categories.length > 0 && (
-          <div className="px-5 py-3.5 border-t border-[var(--glass-border)]">
+          <div className="px-5 py-3 border-t border-[var(--border)]">
             <p className="text-[11px] text-[var(--text-muted)]">
-              Total categories <span className="font-semibold text-white">{categories.length}</span>
+              Total categories <span className="font-semibold text-[var(--text-primary)]">{categories.length}</span>
             </p>
           </div>
         )}
@@ -188,23 +181,19 @@ export default function Categories() {
           <div className="modal w-full max-w-md relative">
             <button
               onClick={() => setDeleteId(null)}
-              className="absolute top-4 right-4 w-8 h-8 rounded-xl flex items-center justify-center text-[var(--text-muted)] hover:text-white hover:bg-[var(--glass-bg)] transition"
+              className="absolute top-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition"
             >
               <X size={16} />
             </button>
 
             <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
-              style={{
-                background: "var(--danger-soft)",
-                border: "1px solid rgba(248,113,113,0.15)",
-                boxShadow: "0 4px 20px rgba(248,113,113,0.1), inset 0 1px 0 rgba(255,255,255,0.04)",
-              }}
+              className="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
+              style={{ background: "var(--danger-light)" }}
             >
-              <AlertTriangle size={22} className="text-[var(--danger)]" />
+              <AlertTriangle size={20} className="text-[var(--danger)]" />
             </div>
 
-            <h2 className="text-lg font-bold text-white">Delete Category?</h2>
+            <h2 className="text-lg font-bold text-[var(--text-primary)]">Delete Category?</h2>
             <p className="mt-2 text-sm text-[var(--text-secondary)] leading-relaxed">
               This action cannot be undone. The category will be permanently removed from your inventory system.
             </p>

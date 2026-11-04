@@ -48,28 +48,24 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
       {isOpen && (
         <div className="modal-backdrop" onClick={onClose}>
           <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 16 }}
+            initial={{ opacity: 0, scale: 0.96, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 16 }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            exit={{ opacity: 0, scale: 0.96, y: 8 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
             className="modal w-full max-w-md mx-4"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{
-                    background: "var(--accent-soft)",
-                    border: "1px solid rgba(79,142,255,0.15)",
-                    boxShadow: "0 4px 16px rgba(79,142,255,0.1), inset 0 1px 0 rgba(255,255,255,0.05)",
-                  }}
+                  className="w-9 h-9 rounded-lg flex items-center justify-center"
+                  style={{ background: "var(--primary-light)" }}
                 >
-                  <Package size={18} className="text-[var(--accent)]" />
+                  <Package size={16} className="text-[var(--primary)]" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-white">
+                  <h2 className="text-base font-bold text-[var(--text-primary)]">
                     {initialData ? "Edit Product" : "Add Product"}
                   </h2>
                   <p className="text-[11px] text-[var(--text-muted)]">
@@ -79,7 +75,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
               </div>
               <button
                 onClick={onClose}
-                className="w-8 h-8 rounded-xl flex items-center justify-center text-[var(--text-muted)] hover:text-white hover:bg-[var(--glass-bg)] transition-all"
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition"
               >
                 <X size={16} />
               </button>
@@ -88,7 +84,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">
+                <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
                   Product Name
                 </label>
                 <input
@@ -100,7 +96,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">
+                <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
                   Category
                 </label>
                 <select className="w-full text-sm" value={category} onChange={(e) => setCategory(e.target.value)}>
@@ -113,32 +109,20 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">
+                  <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
                     Price (₹)
                   </label>
-                  <input
-                    type="number"
-                    className="w-full text-sm"
-                    placeholder="0"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                  />
+                  <input type="number" className="w-full text-sm" placeholder="0" value={price} onChange={(e) => setPrice(e.target.value)} />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-[var(--text-muted)] uppercase tracking-wide mb-1.5">
+                  <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
                     Quantity
                   </label>
-                  <input
-                    type="number"
-                    className="w-full text-sm"
-                    placeholder="0"
-                    value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
-                  />
+                  <input type="number" className="w-full text-sm" placeholder="0" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-3">
+              <div className="flex justify-end gap-3 pt-2">
                 <button type="button" onClick={onClose} className="btn btn-secondary text-sm">Cancel</button>
                 <button type="submit" className="btn btn-primary text-sm">
                   {initialData ? "Save Changes" : "Add Product"}

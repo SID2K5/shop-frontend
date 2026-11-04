@@ -1,374 +1,320 @@
 @import "tailwindcss";
 
-/* ===============================
-   SPATIAL DESIGN SYSTEM
-   Glass morphism, depth layers,
-   ambient lighting, floating UI
-   =============================== */
+/* ===================================
+   POWDER BLUE & SLATE DESIGN SYSTEM
+   Premium enterprise SaaS theme
+   =================================== */
 
 :root {
-  /* === SPATIAL BACKGROUNDS === */
-  --bg-void: #050816;
-  --bg-base: #0a0e1f;
-  --bg-depth-1: rgba(15, 20, 45, 0.6);
-  --bg-depth-2: rgba(20, 28, 58, 0.5);
-  --bg-depth-3: rgba(30, 40, 75, 0.4);
-
-  /* === GLASS SURFACES === */
-  --glass-bg: rgba(15, 20, 50, 0.45);
-  --glass-bg-hover: rgba(20, 28, 65, 0.55);
-  --glass-bg-active: rgba(25, 35, 75, 0.65);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-border-hover: rgba(255, 255, 255, 0.14);
-  --glass-border-active: rgba(100, 180, 255, 0.25);
-  --glass-shine: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.06) 0%,
-    transparent 50%,
-    rgba(255, 255, 255, 0.02) 100%
-  );
-
-  /* === TEXT === */
-  --text-primary: #f0f2f8;
-  --text-secondary: #8b95b0;
-  --text-muted: #5a6480;
-  --text-glow: rgba(120, 180, 255, 0.8);
-
-  /* === ACCENT === */
-  --accent: #4f8eff;
-  --accent-glow: rgba(79, 142, 255, 0.4);
-  --accent-soft: rgba(79, 142, 255, 0.12);
-  --cyan: #00d4ff;
-  --cyan-glow: rgba(0, 212, 255, 0.35);
-  --cyan-soft: rgba(0, 212, 255, 0.1);
-  --purple: #a855f7;
-  --purple-glow: rgba(168, 85, 247, 0.3);
-  --purple-soft: rgba(168, 85, 247, 0.1);
-
-  /* === SEMANTIC === */
-  --success: #34d399;
-  --success-glow: rgba(52, 211, 153, 0.3);
-  --success-soft: rgba(52, 211, 153, 0.1);
-  --warning: #fbbf24;
-  --warning-glow: rgba(251, 191, 36, 0.3);
-  --warning-soft: rgba(251, 191, 36, 0.1);
-  --danger: #f87171;
-  --danger-glow: rgba(248, 113, 113, 0.3);
-  --danger-soft: rgba(248, 113, 113, 0.1);
-
-  /* === SPATIAL DEPTH === */
-  --shadow-float: 0 8px 32px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-elevated: 0 16px 48px rgba(0, 0, 0, 0.6), 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-glow-accent: 0 4px 24px rgba(79, 142, 255, 0.15);
-  --shadow-glow-cyan: 0 4px 24px rgba(0, 212, 255, 0.12);
-  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-
-  /* === RADIUS (spatial = rounder) === */
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
-  --radius-pill: 100px;
+  /* === PRIMARY === */
+  --primary: #496D83;
+  --primary-hover: #3C5D72;
+  --primary-light: #E5EFF5;
+  --powder-blue: #C8DCE9;
+  --steel-blue: #7897AB;
 
   /* === SIDEBAR === */
-  --sidebar-width: 260px;
+  --sidebar-bg: #263744;
+  --sidebar-hover: #344B5B;
+  --sidebar-active: #405D70;
+  --sidebar-width: 256px;
 
-  /* === BLUR === */
-  --blur-glass: 20px;
-  --blur-heavy: 40px;
+  /* === BACKGROUNDS === */
+  --bg-main: #F3F6F8;
+  --bg-secondary: #EAF0F4;
+  --bg-card: #FFFFFF;
+
+  /* === TEXT === */
+  --text-primary: #243746;
+  --text-secondary: #647786;
+  --text-muted: #8999A5;
+
+  /* === BORDER === */
+  --border: #DCE5EB;
+  --border-hover: #C8D5DD;
+
+  /* === SEMANTIC === */
+  --success: #2E7D5B;
+  --success-light: #E8F5EE;
+  --success-border: #B8DCC9;
+  --warning: #B8860B;
+  --warning-light: #FFF8E7;
+  --warning-border: #E8D5A0;
+  --danger: #B84A4A;
+  --danger-light: #FCEAEA;
+  --danger-border: #E0B4B4;
+
+  /* === SHADOWS === */
+  --shadow-sm: 0 1px 2px rgba(36, 55, 70, 0.05);
+  --shadow-md: 0 2px 8px rgba(36, 55, 70, 0.08), 0 1px 2px rgba(36, 55, 70, 0.04);
+  --shadow-lg: 0 4px 16px rgba(36, 55, 70, 0.1), 0 2px 4px rgba(36, 55, 70, 0.05);
+  --shadow-xl: 0 8px 32px rgba(36, 55, 70, 0.12), 0 2px 8px rgba(36, 55, 70, 0.06);
+
+  /* === RADIUS === */
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 14px;
+  --radius-pill: 100px;
 }
 
-/* ===============================
+/* ===================================
    BASE
-   =============================== */
+   =================================== */
 
 html, body {
-  background: var(--bg-void);
+  background: var(--bg-main);
   color: var(--text-primary);
   font-family: "Inter", system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* ===============================
-   GLASS SURFACE UTILITY
-   =============================== */
-
-.glass {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--blur-glass));
-  -webkit-backdrop-filter: blur(var(--blur-glass));
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-float), var(--shadow-inset);
-  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.glass:hover {
-  background: var(--glass-bg-hover);
-  border-color: var(--glass-border-hover);
-}
-
-.glass-static {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--blur-glass));
-  -webkit-backdrop-filter: blur(var(--blur-glass));
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-float), var(--shadow-inset);
-}
-
-.glass-heavy {
-  background: rgba(10, 14, 35, 0.7);
-  backdrop-filter: blur(var(--blur-heavy));
-  -webkit-backdrop-filter: blur(var(--blur-heavy));
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-elevated), var(--shadow-inset);
-}
-
-/* ===============================
-   SPATIAL CARD
-   =============================== */
+/* ===================================
+   CARDS
+   =================================== */
 
 .card {
   position: relative;
-  overflow: hidden;
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--blur-glass));
-  -webkit-backdrop-filter: blur(var(--blur-glass));
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-float), var(--shadow-inset);
-  transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: var(--glass-shine);
-  border-radius: inherit;
-  pointer-events: none;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  border-color: var(--glass-border-hover);
-  box-shadow: var(--shadow-elevated), var(--shadow-inset), var(--shadow-glow-accent);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-hover);
 }
 
-/* ===============================
+/* ===================================
    BUTTONS
-   =============================== */
+   =================================== */
 
 .btn {
   @apply inline-flex items-center justify-center
-         px-5 py-2.5
-         font-semibold text-sm
-         transition-all duration-300;
+         px-4 py-2
+         font-medium text-sm
+         transition-all duration-200;
   border-radius: var(--radius-md);
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-
-.btn::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: var(--glass-shine);
-  border-radius: inherit;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.btn:hover::before {
-  opacity: 1;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, var(--accent), #6c5ce7);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: var(--shadow-glow-accent), 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 28px rgba(79, 142, 255, 0.35), 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.btn-secondary {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  color: var(--text-secondary);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-inset);
-}
-
-.btn-secondary:hover {
-  background: var(--glass-bg-hover);
-  color: var(--text-primary);
-  border-color: var(--glass-border-hover);
-}
-
-.btn-danger {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.25);
-}
-
-.btn-danger:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 24px rgba(239, 68, 68, 0.35);
-}
-
-.btn-ghost {
-  background: transparent;
-  color: var(--text-secondary);
-  border: 1px solid transparent;
-}
-
-.btn-ghost:hover {
-  background: var(--glass-bg);
-  color: var(--text-primary);
-  border-color: var(--glass-border);
+  gap: 6px;
 }
 
 .btn:disabled {
-  @apply opacity-40 cursor-not-allowed;
-  transform: none !important;
+  @apply opacity-50 cursor-not-allowed;
 }
 
-/* ===============================
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border: 1px solid var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-hover);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+  border: 1px solid var(--danger);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #A33F3F;
+  border-color: #A33F3F;
+}
+
+/* ===================================
    TABLES
-   =============================== */
+   =================================== */
 
 table {
   @apply w-full border-collapse;
 }
 
 thead {
-  background: rgba(15, 20, 50, 0.8);
+  background: var(--bg-secondary);
 }
 
 thead th {
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-muted);
 }
 
 tbody tr {
-  border-top: 1px solid var(--glass-border);
-  transition: all 0.2s;
+  border-top: 1px solid var(--border);
+  transition: background 0.15s ease;
 }
 
 tbody tr:hover {
-  background: rgba(79, 142, 255, 0.04);
+  background: var(--bg-secondary);
 }
 
 th, td {
   @apply p-3 text-left;
 }
 
-/* ===============================
+/* ===================================
    INPUTS & SELECTS
-   =============================== */
+   =================================== */
 
 input, select, textarea {
-  background: rgba(10, 14, 35, 0.6);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   color: var(--text-primary);
   border-radius: var(--radius-sm);
-  padding: 0.6rem 0.85rem;
+  padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
-  transition: all 0.25s;
+  transition: all 0.2s ease;
 }
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft), var(--shadow-glow-accent);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(73, 109, 131, 0.12);
 }
 
 input::placeholder {
   color: var(--text-muted);
 }
 
-/* ===============================
+/* ===================================
    BADGES
-   =============================== */
+   =================================== */
 
 .badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 12px;
+  padding: 2px 10px;
   border-radius: var(--radius-pill);
   font-size: 0.7rem;
   font-weight: 600;
-  letter-spacing: 0.02em;
   border: 1px solid transparent;
 }
 
 .badge-success {
-  background: var(--success-soft);
+  background: var(--success-light);
   color: var(--success);
-  border-color: rgba(52, 211, 153, 0.15);
+  border-color: var(--success-border);
 }
 
 .badge-warning {
-  background: var(--warning-soft);
+  background: var(--warning-light);
   color: var(--warning);
-  border-color: rgba(251, 191, 36, 0.15);
+  border-color: var(--warning-border);
 }
 
 .badge-danger {
-  background: var(--danger-soft);
+  background: var(--danger-light);
   color: var(--danger);
-  border-color: rgba(248, 113, 113, 0.15);
+  border-color: var(--danger-border);
 }
 
-/* ===============================
+/* ===================================
    MODALS
-   =============================== */
+   =================================== */
 
 .modal-backdrop {
   @apply fixed inset-0 flex items-center justify-center z-50;
-  background: rgba(5, 8, 22, 0.7);
-  backdrop-filter: blur(8px);
+  background: rgba(36, 55, 70, 0.45);
+  backdrop-filter: blur(4px);
 }
 
 .modal {
-  background: rgba(15, 20, 50, 0.85);
-  backdrop-filter: blur(var(--blur-heavy));
-  -webkit-backdrop-filter: blur(var(--blur-heavy));
-  border: 1px solid var(--glass-border-hover);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-elevated), var(--shadow-inset);
-  padding: 1.75rem;
-  position: relative;
-  overflow: hidden;
+  box-shadow: var(--shadow-xl);
+  padding: 1.5rem;
 }
 
-.modal::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: var(--glass-shine);
-  border-radius: inherit;
-  pointer-events: none;
+/* ===================================
+   ACTION BUTTONS (table row)
+   =================================== */
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  cursor: pointer;
 }
 
-/* ===============================
+.action-btn-blue {
+  color: var(--primary);
+  background: var(--primary-light);
+  border-color: var(--powder-blue);
+}
+.action-btn-blue:hover {
+  background: var(--powder-blue);
+  border-color: var(--steel-blue);
+}
+
+.action-btn-purple {
+  color: var(--steel-blue);
+  background: var(--primary-light);
+  border-color: var(--powder-blue);
+}
+.action-btn-purple:hover {
+  background: var(--powder-blue);
+  border-color: var(--steel-blue);
+}
+
+.action-btn-red {
+  color: var(--danger);
+  background: var(--danger-light);
+  border-color: var(--danger-border);
+}
+.action-btn-red:hover {
+  background: #F5D5D5;
+  border-color: var(--danger);
+}
+
+.action-btn-yellow {
+  color: var(--warning);
+  background: var(--warning-light);
+  border-color: var(--warning-border);
+}
+.action-btn-yellow:hover {
+  background: #F5EDCE;
+  border-color: var(--warning);
+}
+
+/* ===================================
    SCROLLBAR
-   =============================== */
+   =================================== */
 
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -376,89 +322,10 @@ input::placeholder {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(100, 120, 160, 0.3);
+  background: var(--powder-blue);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 120, 160, 0.5);
-}
-
-/* ===============================
-   SPATIAL ACTION BUTTON
-   =============================== */
-
-.action-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 14px;
-  border-radius: var(--radius-sm);
-  font-size: 0.72rem;
-  font-weight: 600;
-  border: 1px solid transparent;
-  backdrop-filter: blur(8px);
-  transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  cursor: pointer;
-}
-
-.action-btn:hover {
-  transform: translateY(-1px);
-}
-
-.action-btn-blue {
-  color: #60a5fa;
-  background: rgba(96, 165, 250, 0.08);
-  border-color: rgba(96, 165, 250, 0.15);
-}
-.action-btn-blue:hover {
-  background: rgba(96, 165, 250, 0.15);
-  border-color: rgba(96, 165, 250, 0.3);
-  box-shadow: 0 4px 12px rgba(96, 165, 250, 0.12);
-}
-
-.action-btn-purple {
-  color: #c084fc;
-  background: rgba(192, 132, 252, 0.08);
-  border-color: rgba(192, 132, 252, 0.15);
-}
-.action-btn-purple:hover {
-  background: rgba(192, 132, 252, 0.15);
-  border-color: rgba(192, 132, 252, 0.3);
-  box-shadow: 0 4px 12px rgba(192, 132, 252, 0.12);
-}
-
-.action-btn-red {
-  color: #f87171;
-  background: rgba(248, 113, 113, 0.08);
-  border-color: rgba(248, 113, 113, 0.15);
-}
-.action-btn-red:hover {
-  background: rgba(248, 113, 113, 0.15);
-  border-color: rgba(248, 113, 113, 0.3);
-  box-shadow: 0 4px 12px rgba(248, 113, 113, 0.12);
-}
-
-.action-btn-yellow {
-  color: #fbbf24;
-  background: rgba(251, 191, 36, 0.08);
-  border-color: rgba(251, 191, 36, 0.15);
-}
-.action-btn-yellow:hover {
-  background: rgba(251, 191, 36, 0.15);
-  border-color: rgba(251, 191, 36, 0.3);
-  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.12);
-}
-
-/* ===============================
-   AMBIENT ORB (background)
-   =============================== */
-
-.ambient-orb {
-  position: fixed;
-  border-radius: 50%;
-  filter: blur(120px);
-  pointer-events: none;
-  opacity: 0.35;
-  z-index: 0;
+  background: var(--steel-blue);
 }
