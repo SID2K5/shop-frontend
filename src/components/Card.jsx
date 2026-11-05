@@ -42,10 +42,19 @@ export default function Card({ title, value, icon, trend, color = "blue" }) {
         style={{ background: `linear-gradient(90deg, ${c.stripe}, transparent)` }}
       />
 
-      <div className="flex items-center gap-2.5 mb-3">
+      {/* Decorative background glow */}
+      <div
+        className="absolute -top-8 -right-8 w-28 h-28 rounded-full opacity-[0.05] group-hover:opacity-[0.1] transition-opacity duration-500 pointer-events-none"
+        style={{ background: `radial-gradient(circle, ${c.stripe}, transparent 70%)` }}
+      />
+
+      {/* Hover shimmer sweep */}
+      <div className="card-shimmer" />
+
+      <div className="relative flex items-center gap-2.5 mb-3">
         {icon && (
           <span
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-sm transition-transform duration-200 group-hover:scale-105"
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-sm transition-all duration-200 group-hover:scale-110 group-hover:shadow-sm"
             style={{ background: c.icon, color: c.iconColor }}
           >
             {icon}
@@ -57,7 +66,7 @@ export default function Card({ title, value, icon, trend, color = "blue" }) {
       </div>
 
       <p
-        className="text-2xl font-bold text-[var(--text-primary)]"
+        className="relative text-2xl font-bold text-[var(--text-primary)]"
         style={{ fontVariantNumeric: "tabular-nums" }}
       >
         {value}
@@ -65,7 +74,7 @@ export default function Card({ title, value, icon, trend, color = "blue" }) {
 
       {trend && (
         <p
-          className={`text-xs mt-2 font-semibold flex items-center gap-1 ${
+          className={`relative text-xs mt-2 font-semibold flex items-center gap-1 ${
             trend.up ? "text-[var(--success)]" : "text-[var(--danger)]"
           }`}
         >

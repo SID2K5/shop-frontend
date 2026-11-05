@@ -4,7 +4,6 @@ import {
   Tags,
   Package,
   Warehouse,
-  Settings,
   LogOut,
   X,
   ChevronRight,
@@ -160,10 +159,6 @@ export default function Sidebar({ isOpen, onClose }) {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 px-3 py-2 rounded-[var(--radius-md)] text-[var(--steel-blue)] hover:text-[var(--powder-blue)] hover:bg-white/[0.05] transition-all cursor-pointer">
-            <Settings size={15} />
-            <span className="text-[12px] font-medium">Settings</span>
-          </div>
           <div className="flex items-center gap-3 px-3 py-2 rounded-[var(--radius-md)] text-[var(--steel-blue)] hover:text-red-300 hover:bg-red-500/[0.06] transition-all cursor-pointer">
             <LogOut size={15} />
             <span className="text-[12px] font-medium">Log out</span>
