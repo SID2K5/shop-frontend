@@ -10,6 +10,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "../context/ThemeContext";
 
 const navItems = [
   { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
@@ -18,6 +19,8 @@ const navItems = [
 ];
 
 export default function Sidebar({ isOpen, onClose }) {
+  const { dark } = useTheme();
+
   return (
     <>
       {/* Mobile backdrop */}
@@ -44,7 +47,9 @@ export default function Sidebar({ isOpen, onClose }) {
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
         `}
         style={{
-          background: "linear-gradient(180deg, #1E2F3D 0%, var(--sidebar-bg) 100%)",
+          background: dark
+            ? "linear-gradient(180deg, #0A1218 0%, var(--sidebar-bg) 100%)"
+            : "linear-gradient(180deg, #1E2F3D 0%, var(--sidebar-bg) 100%)",
         }}
       >
         {/* Brand */}
@@ -112,7 +117,6 @@ export default function Sidebar({ isOpen, onClose }) {
                 >
                   {({ isActive }) => (
                     <>
-                      {/* Active accent bar */}
                       {isActive && (
                         <div
                           className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full"
@@ -145,7 +149,6 @@ export default function Sidebar({ isOpen, onClose }) {
         <div className="px-3 pb-4">
           <div className="h-px w-full bg-white/[0.06] mb-3" />
 
-          {/* Quick stats */}
           <div
             className="mx-2 mb-3 p-3 rounded-[var(--radius-md)]"
             style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}

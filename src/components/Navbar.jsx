@@ -1,6 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, Search, Bell, ChevronRight, Sun, HelpCircle } from "lucide-react";
+import { Menu, Search, Bell, ChevronRight, Sun, Moon, HelpCircle } from "lucide-react";
+import { useTheme } from "../context/ThemeContext";
 
 const pageDetails = {
   "/dashboard": { title: "Dashboard", subtitle: "Overview of your inventory", breadcrumb: "Home" },
@@ -10,6 +11,7 @@ const pageDetails = {
 
 export default function Navbar({ onMenuClick }) {
   const location = useLocation();
+  const { dark, toggle } = useTheme();
   const currentPage = pageDetails[location.pathname] || {
     title: "Inventory System",
     subtitle: "Manage your inventory efficiently",
@@ -100,10 +102,22 @@ export default function Navbar({ onMenuClick }) {
 
         {/* Theme toggle */}
         <button
+          onClick={toggle}
           className="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition"
-          title="Toggle theme"
+          title={dark ? "Switch to light mode" : "Switch to dark mode"}
         >
-          <Sun size={15} />
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.span
+              key={dark ? "moon" : "sun"}
+              initial={{ opacity: 0, rotate: -90, scale: 0.6 }}
+              animate={{ opacity: 1, rotate: 0, scale: 1 }}
+              exit={{ opacity: 0, rotate: 90, scale: 0.6 }}
+              transition={{ duration: 0.2 }}
+              className="flex items-center justify-center"
+            >
+              {dark ? <Moon size={15} /> : <Sun size={15} />}
+            </motion.span>
+          </AnimatePresence>
         </button>
 
         {/* Help */}
@@ -118,8 +132,8 @@ export default function Navbar({ onMenuClick }) {
         <button className="relative w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition">
           <Bell size={15} />
           <span
-            className="absolute top-1 right-1 w-[7px] h-[7px] rounded-full ring-2 ring-white"
-            style={{ background: "var(--danger)" }}
+            className="absolute top-1 right-1 w-[7px] h-[7px] rounded-full ring-2"
+            style={{ background: "var(--danger)", boxShadow: "0 0 0 2px var(--bg-card)" }}
           />
         </button>
 

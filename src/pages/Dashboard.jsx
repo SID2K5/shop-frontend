@@ -14,6 +14,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useTheme } from "../context/ThemeContext";
 
 import Card from "../components/Card";
 import {
@@ -64,6 +65,7 @@ function getGreeting() {
 }
 
 export default function Dashboard() {
+  const { dark } = useTheme();
   const [dashboard, setDashboard] = useState(null);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -117,7 +119,9 @@ export default function Dashboard() {
   }
 
   const { snapshot, todaySales, todayActivity } = dashboard;
-  const catColors = ["#496D83", "#7897AB", "#A9C2D1", "#9AAEBB", "#C8DCE9"];
+  const catColors = dark
+    ? ["#7AADCA", "#8BAFC4", "#5E8DA6", "#6B9BB5", "#4A7B96"]
+    : ["#496D83", "#7897AB", "#A9C2D1", "#9AAEBB", "#C8DCE9"];
   const now = new Date();
   const dateStr = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
@@ -130,8 +134,12 @@ export default function Dashboard() {
         transition={{ duration: 0.5 }}
         className="relative overflow-hidden rounded-[var(--radius-xl)] p-5 sm:p-6"
         style={{
-          background: "linear-gradient(135deg, #2A4A5E 0%, #496D83 40%, #7897AB 100%)",
-          boxShadow: "0 4px 24px rgba(42, 74, 94, 0.25)",
+          background: dark
+            ? "linear-gradient(135deg, #0D1B24 0%, #1A3345 40%, #264A5E 100%)"
+            : "linear-gradient(135deg, #2A4A5E 0%, #496D83 40%, #7897AB 100%)",
+          boxShadow: dark
+            ? "0 4px 24px rgba(0, 0, 0, 0.4)"
+            : "0 4px 24px rgba(42, 74, 94, 0.25)",
         }}
       >
         <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-[0.07]"
@@ -225,7 +233,7 @@ export default function Dashboard() {
               <XAxis dataKey="name" stroke="var(--text-muted)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis stroke="var(--text-muted)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(73,109,131,0.06)" }} />
-              <Bar dataKey="qty" fill="#496D83" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="qty" fill={dark ? "#7AADCA" : "#496D83"} radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}
