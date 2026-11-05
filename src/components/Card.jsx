@@ -25,9 +25,9 @@ const colorMap = {
     stripe: "var(--danger)",
   },
   purple: {
-    icon: "#F0EBF5",
-    iconColor: "#6B5B8A",
-    stripe: "#6B5B8A",
+    icon: "var(--purple-light)",
+    iconColor: "var(--purple)",
+    stripe: "var(--purple)",
   },
 };
 

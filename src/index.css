@@ -12,6 +12,8 @@
   --primary-light: #E5EFF5;
   --powder-blue: #C8DCE9;
   --steel-blue: #7897AB;
+  --purple: #6B5B8A;
+  --purple-light: #F0EBF5;
 
   /* === SIDEBAR === */
   --sidebar-bg: #263744;
@@ -63,41 +65,43 @@
    =================================== */
 
 [data-theme="dark"] {
-  --primary: #7AADCA;
-  --primary-hover: #8DBDD6;
-  --primary-light: #1C2E3A;
-  --powder-blue: #3A5468;
-  --steel-blue: #8BAFC4;
+  --primary: #6BA7D4;
+  --primary-hover: #82B8DF;
+  --primary-light: rgba(107, 167, 212, 0.1);
+  --powder-blue: #253545;
+  --steel-blue: #8DA4B8;
+  --purple: #B095D6;
+  --purple-light: rgba(176, 149, 214, 0.1);
 
-  --sidebar-bg: #0F1A22;
-  --sidebar-hover: #1A2D3A;
-  --sidebar-active: #243D4E;
+  --sidebar-bg: #080E15;
+  --sidebar-hover: #111B27;
+  --sidebar-active: #1A2838;
 
-  --bg-main: #111D26;
-  --bg-secondary: #172731;
-  --bg-card: #1A2D3A;
+  --bg-main: #0B1219;
+  --bg-secondary: #111C28;
+  --bg-card: #162233;
 
-  --text-primary: #E4EDF3;
-  --text-secondary: #A3B8C8;
-  --text-muted: #6E8A9E;
+  --text-primary: #E6ECF2;
+  --text-secondary: #8A9DB2;
+  --text-muted: #546A80;
 
-  --border: #243D4E;
-  --border-hover: #2F5266;
+  --border: #1E2E40;
+  --border-hover: #253B52;
 
-  --success: #4EBF8B;
-  --success-light: #132B22;
-  --success-border: #1E4A36;
-  --warning: #D4A017;
-  --warning-light: #2B2210;
-  --warning-border: #4A3A14;
-  --danger: #E06B6B;
-  --danger-light: #2E1717;
-  --danger-border: #4E2424;
+  --success: #4ADE80;
+  --success-light: rgba(74, 222, 128, 0.08);
+  --success-border: rgba(74, 222, 128, 0.15);
+  --warning: #FACC15;
+  --warning-light: rgba(250, 204, 21, 0.08);
+  --warning-border: rgba(250, 204, 21, 0.15);
+  --danger: #FB7185;
+  --danger-light: rgba(251, 113, 133, 0.08);
+  --danger-border: rgba(251, 113, 133, 0.15);
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.15);
-  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
-  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 /* ===================================
@@ -376,4 +380,61 @@ input::placeholder {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--steel-blue);
+}
+
+/* ===================================
+   DARK MODE ENHANCEMENTS
+   =================================== */
+
+[data-theme="dark"] body {
+  background-image:
+    radial-gradient(ellipse at 15% 5%, rgba(107, 167, 212, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 95%, rgba(107, 167, 212, 0.02) 0%, transparent 50%);
+}
+
+[data-theme="dark"] .card {
+  background: rgba(22, 34, 51, 0.85);
+  backdrop-filter: blur(8px);
+  border-color: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="dark"] .card:hover {
+  border-color: rgba(107, 167, 212, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(107, 167, 212, 0.05);
+}
+
+[data-theme="dark"] input:focus,
+[data-theme="dark"] select:focus,
+[data-theme="dark"] textarea:focus {
+  box-shadow: 0 0 0 3px rgba(107, 167, 212, 0.15);
+}
+
+[data-theme="dark"] .modal-backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="dark"] .modal {
+  background: var(--bg-card);
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .action-btn-red:hover {
+  background: rgba(251, 113, 133, 0.15);
+  border-color: rgba(251, 113, 133, 0.3);
+}
+
+[data-theme="dark"] .action-btn-yellow:hover {
+  background: rgba(250, 204, 21, 0.12);
+  border-color: rgba(250, 204, 21, 0.25);
+}
+
+[data-theme="dark"] .action-btn-blue:hover {
+  background: rgba(107, 167, 212, 0.15);
+  border-color: rgba(107, 167, 212, 0.3);
+}
+
+[data-theme="dark"] .action-btn-purple:hover {
+  background: rgba(176, 149, 214, 0.15);
+  border-color: rgba(176, 149, 214, 0.3);
 }
