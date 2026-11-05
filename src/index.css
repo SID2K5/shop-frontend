@@ -86,6 +86,7 @@ html, body {
 .card:hover {
   box-shadow: var(--shadow-md);
   border-color: var(--border-hover);
+  transform: translateY(-1px);
 }
 
 /* ===================================
