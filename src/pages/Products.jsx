@@ -8,6 +8,10 @@ import {
   XCircle,
   ChevronLeft,
   ChevronRight,
+  Download,
+  Pencil,
+  History,
+  Trash2,
 } from "lucide-react";
 import {
   fetchProducts,
@@ -21,6 +25,11 @@ import Card from "../components/Card";
 import ProductModal from "../components/ProductModal";
 import DeleteConfirmModal from "../components/DeleteConfirmModal";
 import StockHistoryModal from "../components/StockHistoryModal";
+import ActionMenu from "../components/ActionMenu";
+import EmptyState from "../components/EmptyState";
+import { SkeletonCard, SkeletonTableRow } from "../components/Skeleton";
+import { showToast } from "../components/Toast";
+import { exportToCsv } from "../utils/exportCsv";
 
 const ITEMS_PER_PAGE = 5;
 const LOW_STOCK_LIMIT = 1;
@@ -28,6 +37,7 @@ const LOW_STOCK_LIMIT = 1;
 export default function Products() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [stockFilter, setStockFilter] = useState("All");
@@ -40,8 +50,21 @@ export default function Products() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [historyProduct, setHistoryProduct] = useState(null);
 
-  const loadProducts = async () => setProducts(await fetchProducts());
-  const loadCategories = async () => setCategories(await fetchCategories());
+  const loadProducts = async () => {
+    try {
+      const data = await fetchProducts();
+      setProducts(data);
+    } catch {
+      showToast("Failed to load products", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const loadCategories = async () => {
+    try {
+      setCategories(await fetchCategories());
+    } catch {}
+  };
 
   useEffect(() => {
     loadProducts();
@@ -49,24 +72,53 @@ export default function Products() {
   }, []);
 
   const handleSave = async (product) => {
-    const payload = {
-      name: product.name,
-      price: Number(product.price),
-      quantity: Number(product.quantity),
-      category: product.category,
-    };
-    if (editingProduct) await editProduct(editingProduct._id, payload);
-    else await addProduct(payload);
-    setIsModalOpen(false);
-    setEditingProduct(null);
-    loadProducts();
+    try {
+      const payload = {
+        name: product.name,
+        price: Number(product.price),
+        quantity: Number(product.quantity),
+        category: product.category,
+      };
+      if (editingProduct) {
+        await editProduct(editingProduct._id, payload);
+        showToast("Product updated successfully");
+      } else {
+        await addProduct(payload);
+        showToast("Product added successfully");
+      }
+      setIsModalOpen(false);
+      setEditingProduct(null);
+      loadProducts();
+    } catch {
+      showToast("Failed to save product", "error");
+    }
   };
 
   const handleDelete = async () => {
-    await removeProduct(productToDelete._id);
-    setIsDeleteOpen(false);
-    setProductToDelete(null);
-    loadProducts();
+    try {
+      await removeProduct(productToDelete._id);
+      showToast("Product deleted successfully");
+      setIsDeleteOpen(false);
+      setProductToDelete(null);
+      loadProducts();
+    } catch {
+      showToast("Failed to delete product", "error");
+    }
+  };
+
+  const handleExport = () => {
+    if (processedProducts.length === 0) {
+      showToast("No products to export", "warning");
+      return;
+    }
+    exportToCsv("products.csv", processedProducts, [
+      { label: "Name", accessor: (p) => p.name },
+      { label: "Category", accessor: (p) => p.category?.name || "" },
+      { label: "Price", accessor: (p) => p.price },
+      { label: "Quantity", accessor: (p) => p.quantity },
+      { label: "Status", accessor: (p) => p.quantity === 0 ? "Out of Stock" : p.quantity <= LOW_STOCK_LIMIT ? "Low Stock" : "In Stock" },
+    ]);
+    showToast(`Exported ${processedProducts.length} products to CSV`);
   };
 
   const processedProducts = useMemo(() => {
@@ -107,17 +159,23 @@ export default function Products() {
           </div>
         </div>
 
-        <button
-          onClick={() => { setIsModalOpen(true); setEditingProduct(null); }}
-          className="btn btn-primary"
-        >
-          <Plus size={16} />
-          Add Product
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={handleExport} className="btn btn-secondary">
+            <Download size={15} />
+            <span className="hidden sm:inline">Export CSV</span>
+          </button>
+          <button
+            onClick={() => { setIsModalOpen(true); setEditingProduct(null); }}
+            className="btn btn-primary"
+          >
+            <Plus size={16} />
+            Add Product
+          </button>
+        </div>
       </div>
 
       {/* Low stock alert */}
-      {lowStock > 0 && (
+      {!loading && lowStock > 0 && (
         <div
           className="mb-5 px-4 py-3 rounded-[var(--radius-md)] flex items-center gap-2.5 text-sm"
           style={{
@@ -133,10 +191,21 @@ export default function Products() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-        <Card title="Total Products" value={total} icon={<Package size={14} />} color="blue" />
-        <Card title="In Stock" value={inStock} icon={<CheckCircle2 size={14} />} color="green" />
-        <Card title="Low Stock" value={lowStock} icon={<AlertTriangle size={14} />} color="yellow" />
-        <Card title="Out of Stock" value={outStock} icon={<XCircle size={14} />} color="red" />
+        {loading ? (
+          <>
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </>
+        ) : (
+          <>
+            <Card title="Total Products" value={total} icon={<Package size={14} />} color="blue" />
+            <Card title="In Stock" value={inStock} icon={<CheckCircle2 size={14} />} color="green" />
+            <Card title="Low Stock" value={lowStock} icon={<AlertTriangle size={14} />} color="yellow" />
+            <Card title="Out of Stock" value={outStock} icon={<XCircle size={14} />} color="red" />
+          </>
+        )}
       </div>
 
       {/* Table container */}
@@ -187,50 +256,80 @@ export default function Products() {
               </tr>
             </thead>
             <tbody>
-              {paginatedProducts.map((p) => (
-                <tr key={p._id} className="group">
-                  <td className="px-5 py-3 font-medium text-[var(--text-primary)]">{p.name}</td>
-                  <td className="px-5 py-3 text-[var(--text-secondary)]">{p.category?.name}</td>
-                  <td className="px-5 py-3 text-[var(--text-secondary)]" style={{ fontVariantNumeric: "tabular-nums" }}>
-                    ₹{p.price.toLocaleString()}
-                  </td>
-                  <td className="px-5 py-3 text-[var(--text-secondary)]" style={{ fontVariantNumeric: "tabular-nums" }}>
-                    {p.quantity}
-                  </td>
-                  <td className="px-5 py-3">
-                    {p.quantity === 0 ? (
-                      <span className="badge badge-danger">Out of Stock</span>
-                    ) : p.quantity === LOW_STOCK_LIMIT ? (
-                      <span className="badge badge-warning">Low Stock</span>
-                    ) : (
-                      <span className="badge badge-success">In Stock</span>
-                    )}
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center justify-center gap-2">
-                      <button onClick={() => { setEditingProduct({ ...p, category: p.category?._id }); setIsModalOpen(true); }} className="action-btn action-btn-blue">Edit</button>
-                      <button onClick={() => { setHistoryProduct(p); setIsHistoryOpen(true); }} className="action-btn action-btn-purple">History</button>
-                      <button onClick={() => { setProductToDelete(p); setIsDeleteOpen(true); }} className="action-btn action-btn-red">Delete</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => <SkeletonTableRow key={i} cols={6} />)
+              ) : (
+                paginatedProducts.map((p) => (
+                  <tr key={p._id} className="group">
+                    <td className="px-5 py-3 font-medium text-[var(--text-primary)]">{p.name}</td>
+                    <td className="px-5 py-3 text-[var(--text-secondary)]">{p.category?.name}</td>
+                    <td className="px-5 py-3 text-[var(--text-secondary)]" style={{ fontVariantNumeric: "tabular-nums" }}>
+                      ₹{p.price.toLocaleString()}
+                    </td>
+                    <td className="px-5 py-3 text-[var(--text-secondary)]" style={{ fontVariantNumeric: "tabular-nums" }}>
+                      {p.quantity}
+                    </td>
+                    <td className="px-5 py-3">
+                      {p.quantity === 0 ? (
+                        <span className="badge badge-danger">Out of Stock</span>
+                      ) : p.quantity === LOW_STOCK_LIMIT ? (
+                        <span className="badge badge-warning">Low Stock</span>
+                      ) : (
+                        <span className="badge badge-success">In Stock</span>
+                      )}
+                    </td>
+                    <td className="px-5 py-3">
+                      <div className="flex items-center justify-center">
+                        <ActionMenu
+                          actions={[
+                            {
+                              label: "Edit",
+                              icon: <Pencil size={13} />,
+                              className: "action-btn-blue",
+                              color: "var(--primary)",
+                              onClick: () => { setEditingProduct({ ...p, category: p.category?._id }); setIsModalOpen(true); },
+                            },
+                            {
+                              label: "History",
+                              icon: <History size={13} />,
+                              className: "action-btn-purple",
+                              color: "var(--steel-blue)",
+                              onClick: () => { setHistoryProduct(p); setIsHistoryOpen(true); },
+                            },
+                            {
+                              label: "Delete",
+                              icon: <Trash2 size={13} />,
+                              className: "action-btn-red",
+                              color: "var(--danger)",
+                              onClick: () => { setProductToDelete(p); setIsDeleteOpen(true); },
+                            },
+                          ]}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
 
         {/* Empty state */}
-        {paginatedProducts.length === 0 && (
-          <div className="py-16 flex flex-col items-center justify-center text-center">
-            <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
-              style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)" }}
-            >
-              <Package size={22} className="text-[var(--text-muted)]" />
-            </div>
-            <h3 className="text-sm font-semibold text-[var(--text-primary)]">No products found</h3>
-            <p className="mt-1 text-sm text-[var(--text-muted)]">Try adjusting your filters or add a new product.</p>
-          </div>
+        {!loading && paginatedProducts.length === 0 && (
+          <EmptyState
+            icon={Package}
+            title="No products found"
+            description="Try adjusting your filters or add a new product to get started."
+            action={
+              <button
+                onClick={() => { setIsModalOpen(true); setEditingProduct(null); }}
+                className="btn btn-primary text-sm"
+              >
+                <Plus size={14} />
+                Add Product
+              </button>
+            }
+          />
         )}
 
         {/* Pagination */}
