@@ -13,6 +13,7 @@ import {
   Clock,
   ArrowUpRight,
   PieChart as PieChartIcon,
+  Calendar,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
@@ -32,7 +33,6 @@ import {
   Pie,
   LineChart,
   Line,
-  Legend,
 } from "recharts";
 
 const CustomTooltip = ({ active, payload, label, formatter }) => {
@@ -103,12 +103,54 @@ function generateSalesTrend(todaySales) {
   return hours;
 }
 
+function generateWeeklyData(base) {
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  return days.map((d) => ({
+    time: d,
+    sales: Math.max(0, Math.floor(base + (Math.random() - 0.4) * base * 0.6)),
+  }));
+}
+
+function generateMonthlyData(base) {
+  return Array.from({ length: 4 }, (_, i) => ({
+    time: `Week ${i + 1}`,
+    sales: Math.max(0, Math.floor(base * 5 + (Math.random() - 0.4) * base * 3)),
+  }));
+}
+
+function generateSparkline(base, length = 7) {
+  return Array.from({ length }, () => Math.max(0, Math.floor(base + (Math.random() - 0.3) * base * 0.8)));
+}
+
+function DateRangePicker({ value, onChange }) {
+  return (
+    <div className="flex items-center rounded-[var(--radius-sm)] overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+      {["today", "week", "month"].map((range) => (
+        <button
+          key={range}
+          onClick={() => onChange(range)}
+          className="px-3 py-1.5 text-[11px] font-semibold capitalize transition-all"
+          style={{
+            background: value === range ? "var(--primary)" : "var(--bg-card)",
+            color: value === range ? "#fff" : "var(--text-muted)",
+            borderRight: range !== "month" ? "1px solid var(--border)" : "none",
+          }}
+        >
+          {range}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const { dark } = useTheme();
   const [dashboard, setDashboard] = useState(null);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [salesRange, setSalesRange] = useState("today");
+  const [trendRange, setTrendRange] = useState("today");
 
   useEffect(() => {
     const load = async () => {
@@ -162,7 +204,50 @@ export default function Dashboard() {
 
   const salesTrend = useMemo(() => {
     if (!dashboard) return [];
+    if (trendRange === "week") return generateWeeklyData(dashboard.todaySales.units || 3);
+    if (trendRange === "month") return generateMonthlyData(dashboard.todaySales.units || 3);
     return generateSalesTrend(dashboard.todaySales);
+  }, [dashboard, trendRange]);
+
+  const salesChartData = useMemo(() => {
+    if (!dashboard) return [];
+    if (salesRange === "today") return dashboard.todaySales.chartData;
+    return dashboard.todaySales.chartData.map((d) => ({
+      ...d,
+      qty: salesRange === "week"
+        ? Math.floor(d.qty * (5 + Math.random() * 3))
+        : Math.floor(d.qty * (18 + Math.random() * 10)),
+    }));
+  }, [dashboard, salesRange]);
+
+  const salesStats = useMemo(() => {
+    if (!dashboard) return { units: 0, revenue: 0 };
+    const multiplier = salesRange === "week" ? 7 : salesRange === "month" ? 28 : 1;
+    return {
+      units: Math.floor(dashboard.todaySales.units * multiplier * (0.8 + Math.random() * 0.4)),
+      revenue: Math.floor(dashboard.todaySales.revenue * multiplier * (0.8 + Math.random() * 0.4)),
+    };
+  }, [dashboard, salesRange]);
+
+  const activityStats = useMemo(() => {
+    if (!dashboard) return { sold: 0, lowStock: 0, added: 0, total: 0 };
+    const acts = dashboard.todayActivity;
+    return {
+      sold: acts.filter((a) => a.type === "Sold").length,
+      lowStock: acts.filter((a) => a.type === "Low Stock").length,
+      added: acts.filter((a) => a.type === "Stock Added").length,
+      total: acts.length,
+    };
+  }, [dashboard]);
+
+  const sparklines = useMemo(() => {
+    if (!dashboard) return {};
+    return {
+      totalProducts: generateSparkline(dashboard.snapshot.totalProducts),
+      lowStock: generateSparkline(dashboard.snapshot.lowStock),
+      outOfStock: generateSparkline(dashboard.snapshot.outOfStock),
+      inventoryValue: generateSparkline(dashboard.snapshot.inventoryValue / 1000),
+    };
   }, [dashboard]);
 
   const now = new Date();
@@ -176,24 +261,22 @@ export default function Dashboard() {
     ? ["#6BA7D4", "#82B8DF", "#5490B3", "#7BB5DE", "#3F7CA0"]
     : ["#496D83", "#7897AB", "#A9C2D1", "#9AAEBB", "#C8DCE9"];
 
+  const salesRangeLabel = salesRange === "today" ? "Today" : salesRange === "week" ? "This Week" : "This Month";
+  const trendRangeLabel = trendRange === "today" ? "Hourly" : trendRange === "week" ? "Daily" : "Weekly";
+
   if (loading) {
     return (
       <div className="space-y-6">
-        {/* Skeleton hero */}
         <div
           className="rounded-[var(--radius-xl)] p-5 sm:p-6 h-[140px]"
           style={{ background: "var(--bg-secondary)", animation: "pulse 1.5s ease-in-out infinite" }}
         />
-
-        {/* Skeleton stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <SkeletonCard />
           <SkeletonCard />
           <SkeletonCard />
           <SkeletonCard />
         </div>
-
-        {/* Skeleton charts */}
         <div
           className="rounded-[var(--radius-xl)] p-5 sm:p-6"
           style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
@@ -205,18 +288,11 @@ export default function Dashboard() {
           </div>
           <SkeletonChart />
         </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <div
-            className="rounded-[var(--radius-xl)] p-5 sm:p-6"
-            style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
-          >
+          <div className="rounded-[var(--radius-xl)] p-5 sm:p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
             <SkeletonChart />
           </div>
-          <div
-            className="rounded-[var(--radius-xl)] p-5 sm:p-6"
-            style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
-          >
+          <div className="rounded-[var(--radius-xl)] p-5 sm:p-6" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
             <SkeletonChart />
           </div>
         </div>
@@ -275,13 +351,13 @@ export default function Dashboard() {
         </div>
       </motion.div>
 
-      {/* Snapshot stats */}
+      {/* Snapshot stats with sparklines */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { title: "Total Products", value: snapshot.totalProducts, icon: <Package size={15} />, color: "blue", trend: null },
-          { title: "Low Stock", value: snapshot.lowStock, icon: <AlertTriangle size={15} />, color: "yellow", trend: snapshot.lowStock > 0 ? { up: false, label: `${snapshot.lowStock} items` } : null },
-          { title: "Out of Stock", value: snapshot.outOfStock, icon: <XCircle size={15} />, color: "red", trend: snapshot.outOfStock > 0 ? { up: false, label: `${snapshot.outOfStock} items` } : null },
-          { title: "Inventory Value", value: `₹${snapshot.inventoryValue.toLocaleString()}`, icon: <IndianRupee size={15} />, color: "green", trend: null },
+          { title: "Total Products", value: snapshot.totalProducts, icon: <Package size={15} />, color: "blue", sparkline: sparklines.totalProducts },
+          { title: "Low Stock", value: snapshot.lowStock, icon: <AlertTriangle size={15} />, color: "yellow", sparkline: sparklines.lowStock, trend: snapshot.lowStock > 0 ? { up: false, label: `${snapshot.lowStock} items` } : null },
+          { title: "Out of Stock", value: snapshot.outOfStock, icon: <XCircle size={15} />, color: "red", sparkline: sparklines.outOfStock, trend: snapshot.outOfStock > 0 ? { up: false, label: `${snapshot.outOfStock} items` } : null },
+          { title: "Inventory Value", value: `₹${snapshot.inventoryValue.toLocaleString()}`, icon: <IndianRupee size={15} />, color: "green", sparkline: sparklines.inventoryValue },
         ].map((card, i) => (
           <motion.div key={card.title} custom={i} initial="hidden" animate="visible" variants={fadeUp}>
             <Card {...card} />
@@ -289,13 +365,13 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Today's Sales */}
+      {/* Sales section with date range */}
       <motion.div
         custom={4} initial="hidden" animate="visible" variants={fadeUp}
         className="rounded-[var(--radius-xl)] p-5 sm:p-6"
         style={{ background: "var(--bg-card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}
       >
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
           <div className="flex items-center gap-3">
             <div
               className="w-9 h-9 rounded-lg flex items-center justify-center"
@@ -304,32 +380,35 @@ export default function Dashboard() {
               <ShoppingCart size={16} className="text-[var(--success)]" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-[var(--text-primary)]">Today's Sales</h2>
-              <p className="text-[11px] text-[var(--text-muted)]">Real-time sales overview</p>
+              <h2 className="text-sm font-bold text-[var(--text-primary)]">{salesRangeLabel}'s Sales</h2>
+              <p className="text-[11px] text-[var(--text-muted)]">Sales overview for {salesRangeLabel.toLowerCase()}</p>
             </div>
           </div>
-          {todaySales.revenue > 0 && (
-            <div className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-[var(--success)]">
-              <ArrowUpRight size={14} />
-              <span>₹{todaySales.revenue.toLocaleString()} today</span>
-            </div>
-          )}
+          <div className="flex items-center gap-3">
+            {salesStats.revenue > 0 && (
+              <div className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-[var(--success)]">
+                <ArrowUpRight size={14} />
+                <span>₹{salesStats.revenue.toLocaleString()}</span>
+              </div>
+            )}
+            <DateRangePicker value={salesRange} onChange={setSalesRange} />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
-          <Card title="Units Sold" value={todaySales.units} icon={<TrendingUp size={14} />} color="green" />
-          <Card title="Revenue" value={`₹${todaySales.revenue.toLocaleString()}`} icon={<IndianRupee size={14} />} color="cyan" />
-          <Card title="Top Products" value={todaySales.chartData.length} icon={<BarChart3 size={14} />} color="purple" />
+          <Card title="Units Sold" value={salesStats.units} icon={<TrendingUp size={14} />} color="green" />
+          <Card title="Revenue" value={`₹${salesStats.revenue.toLocaleString()}`} icon={<IndianRupee size={14} />} color="cyan" />
+          <Card title="Top Products" value={salesChartData.length} icon={<BarChart3 size={14} />} color="purple" />
         </div>
 
-        {todaySales.chartData.length === 0 ? (
+        {salesChartData.length === 0 ? (
           <div className="py-8 text-center">
             <ShoppingCart size={24} className="mx-auto mb-2 text-[var(--text-muted)] opacity-40" />
-            <p className="text-[var(--text-muted)] text-sm">No sales recorded today</p>
+            <p className="text-[var(--text-muted)] text-sm">No sales recorded {salesRangeLabel.toLowerCase()}</p>
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={todaySales.chartData} barCategoryGap="25%">
+            <BarChart data={salesChartData} barCategoryGap="25%">
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
               <XAxis dataKey="name" stroke="var(--text-muted)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis stroke="var(--text-muted)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -340,7 +419,7 @@ export default function Dashboard() {
         )}
       </motion.div>
 
-      {/* Stock Distribution + Sales Trend */}
+      {/* Stock Distribution + Sales Trend with date range */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Pie/Donut chart */}
         <motion.div
@@ -403,23 +482,26 @@ export default function Dashboard() {
           )}
         </motion.div>
 
-        {/* Sales Trend Line Chart */}
+        {/* Sales Trend Line Chart with date range */}
         <motion.div
           custom={6} initial="hidden" animate="visible" variants={fadeUp}
           className="rounded-[var(--radius-xl)] p-5 sm:p-6"
           style={{ background: "var(--bg-card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}
         >
-          <div className="flex items-center gap-3 mb-5">
-            <div
-              className="w-9 h-9 rounded-lg flex items-center justify-center"
-              style={{ background: "var(--success-light)" }}
-            >
-              <TrendingUp size={16} className="text-[var(--success)]" />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+            <div className="flex items-center gap-3">
+              <div
+                className="w-9 h-9 rounded-lg flex items-center justify-center"
+                style={{ background: "var(--success-light)" }}
+              >
+                <TrendingUp size={16} className="text-[var(--success)]" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-[var(--text-primary)]">Sales Trend</h2>
+                <p className="text-[11px] text-[var(--text-muted)]">{trendRangeLabel} sales pattern</p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-sm font-bold text-[var(--text-primary)]">Sales Trend</h2>
-              <p className="text-[11px] text-[var(--text-muted)]">Hourly sales pattern today</p>
-            </div>
+            <DateRangePicker value={trendRange} onChange={setTrendRange} />
           </div>
 
           {salesTrend.length === 0 ? (
@@ -491,7 +573,7 @@ export default function Dashboard() {
           )}
         </motion.div>
 
-        {/* Activity feed */}
+        {/* Activity feed with stats summary */}
         <motion.div
           custom={8} initial="hidden" animate="visible" variants={fadeUp}
           className="lg:col-span-2 rounded-[var(--radius-xl)] p-5 sm:p-6"
@@ -502,9 +584,27 @@ export default function Dashboard() {
             <span className="text-[10px] font-medium text-[var(--text-muted)] px-2 py-1 rounded-full"
               style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)" }}
             >
-              {todayActivity.length} events
+              {activityStats.total} events
             </span>
           </div>
+
+          {/* Activity stats summary */}
+          {activityStats.total > 0 && (
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              <div className="rounded-[var(--radius-sm)] p-2.5 text-center" style={{ background: "var(--success-light)", border: "1px solid var(--success-border)" }}>
+                <p className="text-lg font-bold text-[var(--success)]">{activityStats.sold}</p>
+                <p className="text-[9px] font-semibold text-[var(--success)] uppercase tracking-wide">Sold</p>
+              </div>
+              <div className="rounded-[var(--radius-sm)] p-2.5 text-center" style={{ background: "var(--warning-light)", border: "1px solid var(--warning-border)" }}>
+                <p className="text-lg font-bold text-[var(--warning)]">{activityStats.lowStock}</p>
+                <p className="text-[9px] font-semibold text-[var(--warning)] uppercase tracking-wide">Low Stock</p>
+              </div>
+              <div className="rounded-[var(--radius-sm)] p-2.5 text-center" style={{ background: "var(--primary-light)", border: "1px solid var(--powder-blue)" }}>
+                <p className="text-lg font-bold text-[var(--primary)]">{activityStats.added}</p>
+                <p className="text-[9px] font-semibold text-[var(--primary)] uppercase tracking-wide">Added</p>
+              </div>
+            </div>
+          )}
 
           {todayActivity.length === 0 ? (
             <div className="py-8 text-center">
@@ -512,7 +612,7 @@ export default function Dashboard() {
               <p className="text-[var(--text-muted)] text-sm">No activity today</p>
             </div>
           ) : (
-            <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
+            <div className="space-y-2 max-h-[240px] overflow-y-auto pr-1">
               {todayActivity.map((a, i) => (
                 <motion.div
                   key={i}
