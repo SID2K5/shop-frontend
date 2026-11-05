@@ -453,3 +453,54 @@ input::placeholder {
   background: rgba(176, 149, 214, 0.15);
   border-color: rgba(176, 149, 214, 0.3);
 }
+
+/* ===================================
+   BACKGROUND ENHANCEMENTS
+   =================================== */
+
+body {
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(73, 109, 131, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(200, 220, 233, 0.08) 0%, transparent 50%);
+  background-attachment: fixed;
+}
+
+[data-theme="dark"] body {
+  background-image:
+    radial-gradient(ellipse at 15% 5%, rgba(107, 167, 212, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 95%, rgba(107, 167, 212, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(22, 34, 51, 0.5) 0%, transparent 80%);
+  background-attachment: fixed;
+}
+
+/* Glass-effect cards in both themes */
+.card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+}
+
+[data-theme="dark"] .card {
+  background: rgba(22, 34, 51, 0.75);
+  backdrop-filter: blur(12px);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Table container glass effect */
+[data-theme="dark"] table {
+  background: transparent;
+}
+
+/* Skeleton loading pulse animation */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Chart container subtle glow */
+.recharts-wrapper {
+  filter: drop-shadow(0 0 12px rgba(73, 109, 131, 0.05));
+}
+
+[data-theme="dark"] .recharts-wrapper {
+  filter: drop-shadow(0 0 16px rgba(107, 167, 212, 0.06));
+}

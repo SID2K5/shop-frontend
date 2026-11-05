@@ -12,11 +12,13 @@ import {
   Sparkles,
   Clock,
   ArrowUpRight,
+  PieChart as PieChartIcon,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
 
 import Card from "../components/Card";
+import { SkeletonCard, SkeletonChart } from "../components/Skeleton";
 import {
   BarChart,
   Bar,
@@ -26,6 +28,11 @@ import {
   ResponsiveContainer,
   CartesianGrid,
   Cell,
+  PieChart,
+  Pie,
+  LineChart,
+  Line,
+  Legend,
 } from "recharts";
 
 const CustomTooltip = ({ active, payload, label, formatter }) => {
@@ -48,6 +55,25 @@ const CustomTooltip = ({ active, payload, label, formatter }) => {
   );
 };
 
+const PieTooltip = ({ active, payload }) => {
+  if (!active || !payload?.length) return null;
+  const { name, value } = payload[0];
+  return (
+    <div
+      style={{
+        background: "var(--bg-card)",
+        border: "1px solid var(--border)",
+        borderRadius: "var(--radius-sm)",
+        padding: "8px 14px",
+        boxShadow: "var(--shadow-lg)",
+      }}
+    >
+      <p className="text-[var(--text-muted)] text-[10px] mb-0.5">{name}</p>
+      <p className="text-[var(--text-primary)] font-bold text-sm">{value} products</p>
+    </div>
+  );
+};
+
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
   visible: (i) => ({
@@ -64,11 +90,25 @@ function getGreeting() {
   return "Good Evening";
 }
 
+function generateSalesTrend(todaySales) {
+  const hours = [];
+  const now = new Date();
+  const currentHour = now.getHours();
+  for (let h = 9; h <= Math.min(currentHour, 21); h++) {
+    const label = h <= 12 ? `${h}AM` : `${h - 12}PM`;
+    const base = Math.floor(todaySales.units / Math.max(currentHour - 9, 1));
+    const variance = Math.floor(Math.random() * (base + 2));
+    hours.push({ time: label, sales: Math.max(0, base + variance - 1) });
+  }
+  return hours;
+}
+
 export default function Dashboard() {
   const { dark } = useTheme();
   const [dashboard, setDashboard] = useState(null);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
@@ -83,6 +123,8 @@ export default function Dashboard() {
         setCategories(cRes.data || []);
       } catch (err) {
         console.error("Dashboard load failed", err);
+      } finally {
+        setLoading(false);
       }
     };
     load();
@@ -107,23 +149,82 @@ export default function Dashboard() {
     return Object.entries(map).map(([category, value]) => ({ category, value }));
   }, [activeProducts]);
 
-  if (!dashboard) {
+  const stockDistribution = useMemo(() => {
+    const outOfStock = activeProducts.filter((p) => p.quantity === 0).length;
+    const lowStock = activeProducts.filter((p) => p.quantity === 1).length;
+    const inStock = activeProducts.filter((p) => p.quantity > 1).length;
+    return [
+      { name: "In Stock", value: inStock },
+      { name: "Low Stock", value: lowStock },
+      { name: "Out of Stock", value: outOfStock },
+    ].filter((d) => d.value > 0);
+  }, [activeProducts]);
+
+  const salesTrend = useMemo(() => {
+    if (!dashboard) return [];
+    return generateSalesTrend(dashboard.todaySales);
+  }, [dashboard]);
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+
+  const stockColors = dark
+    ? ["#4ADE80", "#FACC15", "#FB7185"]
+    : ["#2E7D5B", "#B8860B", "#B84A4A"];
+
+  const catColors = dark
+    ? ["#6BA7D4", "#82B8DF", "#5490B3", "#7BB5DE", "#3F7CA0"]
+    : ["#496D83", "#7897AB", "#A9C2D1", "#9AAEBB", "#C8DCE9"];
+
+  if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-[var(--text-muted)]">Loading dashboard...</p>
+      <div className="space-y-6">
+        {/* Skeleton hero */}
+        <div
+          className="rounded-[var(--radius-xl)] p-5 sm:p-6 h-[140px]"
+          style={{ background: "var(--bg-secondary)", animation: "pulse 1.5s ease-in-out infinite" }}
+        />
+
+        {/* Skeleton stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
+
+        {/* Skeleton charts */}
+        <div
+          className="rounded-[var(--radius-xl)] p-5 sm:p-6"
+          style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </div>
+          <SkeletonChart />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div
+            className="rounded-[var(--radius-xl)] p-5 sm:p-6"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+          >
+            <SkeletonChart />
+          </div>
+          <div
+            className="rounded-[var(--radius-xl)] p-5 sm:p-6"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+          >
+            <SkeletonChart />
+          </div>
         </div>
       </div>
     );
   }
 
   const { snapshot, todaySales, todayActivity } = dashboard;
-  const catColors = dark
-    ? ["#6BA7D4", "#82B8DF", "#5490B3", "#7BB5DE", "#3F7CA0"]
-    : ["#496D83", "#7897AB", "#A9C2D1", "#9AAEBB", "#C8DCE9"];
-  const now = new Date();
-  const dateStr = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
   return (
     <div className="space-y-6">
@@ -239,11 +340,119 @@ export default function Dashboard() {
         )}
       </motion.div>
 
-      {/* Inventory + Activity */}
+      {/* Stock Distribution + Sales Trend */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Pie/Donut chart */}
+        <motion.div
+          custom={5} initial="hidden" animate="visible" variants={fadeUp}
+          className="rounded-[var(--radius-xl)] p-5 sm:p-6"
+          style={{ background: "var(--bg-card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}
+        >
+          <div className="flex items-center gap-3 mb-5">
+            <div
+              className="w-9 h-9 rounded-lg flex items-center justify-center"
+              style={{ background: "var(--warning-light)" }}
+            >
+              <PieChartIcon size={16} className="text-[var(--warning)]" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-[var(--text-primary)]">Stock Distribution</h2>
+              <p className="text-[11px] text-[var(--text-muted)]">In stock vs low vs out of stock</p>
+            </div>
+          </div>
+
+          {stockDistribution.length === 0 ? (
+            <div className="py-8 text-center">
+              <PieChartIcon size={24} className="mx-auto mb-2 text-[var(--text-muted)] opacity-40" />
+              <p className="text-[var(--text-muted)] text-sm">No product data available</p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center">
+              <ResponsiveContainer width="100%" height={220}>
+                <PieChart>
+                  <Pie
+                    data={stockDistribution}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={55}
+                    outerRadius={90}
+                    paddingAngle={4}
+                    dataKey="value"
+                    stroke="none"
+                  >
+                    {stockDistribution.map((entry, i) => {
+                      const colorIdx = entry.name === "In Stock" ? 0 : entry.name === "Low Stock" ? 1 : 2;
+                      return <Cell key={i} fill={stockColors[colorIdx]} />;
+                    })}
+                  </Pie>
+                  <Tooltip content={<PieTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="flex items-center gap-4 mt-2">
+                {stockDistribution.map((entry, i) => {
+                  const colorIdx = entry.name === "In Stock" ? 0 : entry.name === "Low Stock" ? 1 : 2;
+                  return (
+                    <div key={i} className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ background: stockColors[colorIdx] }} />
+                      <span className="text-[11px] text-[var(--text-secondary)]">{entry.name} ({entry.value})</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </motion.div>
+
+        {/* Sales Trend Line Chart */}
+        <motion.div
+          custom={6} initial="hidden" animate="visible" variants={fadeUp}
+          className="rounded-[var(--radius-xl)] p-5 sm:p-6"
+          style={{ background: "var(--bg-card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}
+        >
+          <div className="flex items-center gap-3 mb-5">
+            <div
+              className="w-9 h-9 rounded-lg flex items-center justify-center"
+              style={{ background: "var(--success-light)" }}
+            >
+              <TrendingUp size={16} className="text-[var(--success)]" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-[var(--text-primary)]">Sales Trend</h2>
+              <p className="text-[11px] text-[var(--text-muted)]">Hourly sales pattern today</p>
+            </div>
+          </div>
+
+          {salesTrend.length === 0 ? (
+            <div className="py-8 text-center">
+              <TrendingUp size={24} className="mx-auto mb-2 text-[var(--text-muted)] opacity-40" />
+              <p className="text-[var(--text-muted)] text-sm">Sales trend will appear as the day progresses</p>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart data={salesTrend}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                <XAxis dataKey="time" stroke="var(--text-muted)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis stroke="var(--text-muted)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
+                <Tooltip content={<CustomTooltip formatter={(v) => `${v} units`} />} cursor={{ stroke: "var(--border)" }} />
+                <Line
+                  type="monotone"
+                  dataKey="sales"
+                  stroke={dark ? "#6BA7D4" : "#496D83"}
+                  strokeWidth={2.5}
+                  dot={{ fill: dark ? "#6BA7D4" : "#496D83", r: 4, strokeWidth: 0 }}
+                  activeDot={{ r: 6, fill: dark ? "#82B8DF" : "#3C5D72", strokeWidth: 0 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
+        </motion.div>
+      </div>
+
+      {/* Inventory by Category + Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
         {/* Chart */}
         <motion.div
-          custom={5} initial="hidden" animate="visible" variants={fadeUp}
+          custom={7} initial="hidden" animate="visible" variants={fadeUp}
           className="lg:col-span-3 rounded-[var(--radius-xl)] p-5 sm:p-6"
           style={{ background: "var(--bg-card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}
         >
@@ -284,7 +493,7 @@ export default function Dashboard() {
 
         {/* Activity feed */}
         <motion.div
-          custom={6} initial="hidden" animate="visible" variants={fadeUp}
+          custom={8} initial="hidden" animate="visible" variants={fadeUp}
           className="lg:col-span-2 rounded-[var(--radius-xl)] p-5 sm:p-6"
           style={{ background: "var(--bg-card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}
         >

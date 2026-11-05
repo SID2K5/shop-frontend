@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function CategoryModal({ isOpen, onClose, onSave, initialData }) {
   const [name, setName] = useState("");
   const [status, setStatus] = useState("Active");
+  const [error, setError] = useState("");
+  const [touched, setTouched] = useState(false);
 
   useEffect(() => {
     if (initialData) {
@@ -14,12 +16,28 @@ export default function CategoryModal({ isOpen, onClose, onSave, initialData }) 
       setName("");
       setStatus("Active");
     }
+    setError("");
+    setTouched(false);
   }, [initialData, isOpen]);
+
+  const validate = () => {
+    if (!name.trim()) return "Category name is required";
+    if (name.trim().length < 2) return "Name must be at least 2 characters";
+    return "";
+  };
+
+  const handleBlur = () => {
+    setTouched(true);
+    setError(validate());
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!name) return;
-    onSave({ name, status });
+    const v = validate();
+    setError(v);
+    setTouched(true);
+    if (v) return;
+    onSave({ name: name.trim(), status });
   };
 
   return (
@@ -34,7 +52,6 @@ export default function CategoryModal({ isOpen, onClose, onSave, initialData }) 
             className="modal w-full max-w-md mx-4"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
                 <div
@@ -60,18 +77,28 @@ export default function CategoryModal({ isOpen, onClose, onSave, initialData }) 
               </button>
             </div>
 
-            {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
-                  Category Name
+                  Category Name <span style={{ color: "var(--danger)" }}>*</span>
                 </label>
                 <input
                   className="w-full text-sm"
+                  style={
+                    touched && error
+                      ? { borderColor: "var(--danger)", boxShadow: "0 0 0 2px rgba(184, 74, 74, 0.1)" }
+                      : {}
+                  }
                   placeholder="Enter category name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  onBlur={handleBlur}
                 />
+                {touched && error && (
+                  <p className="mt-1 text-[11px] font-medium" style={{ color: "var(--danger)" }}>
+                    {error}
+                  </p>
+                )}
               </div>
 
               <div>

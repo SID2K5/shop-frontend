@@ -9,6 +9,8 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
   const [price, setPrice] = useState("");
   const [quantity, setQuantity] = useState("");
   const [categories, setCategories] = useState([]);
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
   useEffect(() => {
     if (isOpen) loadCategories();
@@ -18,14 +20,21 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
     if (initialData) {
       setName(initialData.name || "");
       setCategory(initialData.category?._id || initialData.category || "");
-      setPrice(initialData.price || "");
-      setQuantity(initialData.quantity || "");
+      setPrice(initialData.price ?? "");
+      setQuantity(initialData.quantity ?? "");
     } else {
       resetForm();
     }
-  }, [initialData]);
+    setErrors({});
+    setTouched({});
+  }, [initialData, isOpen]);
 
-  const resetForm = () => { setName(""); setCategory(""); setPrice(""); setQuantity(""); };
+  const resetForm = () => {
+    setName("");
+    setCategory("");
+    setPrice("");
+    setQuantity("");
+  };
 
   const loadCategories = async () => {
     try {
@@ -36,12 +45,44 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
     }
   };
 
+  const validate = () => {
+    const e = {};
+    if (!name.trim()) e.name = "Product name is required";
+    if (!category) e.category = "Please select a category";
+    if (!price && price !== 0) e.price = "Price is required";
+    else if (Number(price) < 0) e.price = "Price must be positive";
+    if (!quantity && quantity !== 0) e.quantity = "Quantity is required";
+    else if (Number(quantity) < 0) e.quantity = "Quantity must be positive";
+    else if (!Number.isInteger(Number(quantity))) e.quantity = "Quantity must be a whole number";
+    return e;
+  };
+
+  const handleBlur = (field) => {
+    setTouched((t) => ({ ...t, [field]: true }));
+    setErrors(validate());
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!name || !category || !price || !quantity) return;
-    onSave({ name, category, price: Number(price), quantity: Number(quantity) });
+    const v = validate();
+    setErrors(v);
+    setTouched({ name: true, category: true, price: true, quantity: true });
+    if (Object.keys(v).length > 0) return;
+    onSave({ name: name.trim(), category, price: Number(price), quantity: Number(quantity) });
     resetForm();
   };
+
+  const fieldError = (field) =>
+    touched[field] && errors[field] ? (
+      <p className="mt-1 text-[11px] font-medium" style={{ color: "var(--danger)" }}>
+        {errors[field]}
+      </p>
+    ) : null;
+
+  const fieldStyle = (field) =>
+    touched[field] && errors[field]
+      ? { borderColor: "var(--danger)", boxShadow: "0 0 0 2px rgba(184, 74, 74, 0.1)" }
+      : {};
 
   return (
     <AnimatePresence>
@@ -55,7 +96,6 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
             className="modal w-full max-w-md mx-4"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
                 <div
@@ -81,44 +121,75 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
               </button>
             </div>
 
-            {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
-                  Product Name
+                  Product Name <span style={{ color: "var(--danger)" }}>*</span>
                 </label>
                 <input
                   className="w-full text-sm"
+                  style={fieldStyle("name")}
                   placeholder="Enter product name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  onBlur={() => handleBlur("name")}
                 />
+                {fieldError("name")}
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
-                  Category
+                  Category <span style={{ color: "var(--danger)" }}>*</span>
                 </label>
-                <select className="w-full text-sm" value={category} onChange={(e) => setCategory(e.target.value)}>
+                <select
+                  className="w-full text-sm"
+                  style={fieldStyle("category")}
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  onBlur={() => handleBlur("category")}
+                >
                   <option value="">Select category</option>
                   {categories.map((c) => (
                     <option key={c._id} value={c._id}>{c.name}</option>
                   ))}
                 </select>
+                {fieldError("category")}
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
-                    Price (₹)
+                    Price (₹) <span style={{ color: "var(--danger)" }}>*</span>
                   </label>
-                  <input type="number" className="w-full text-sm" placeholder="0" value={price} onChange={(e) => setPrice(e.target.value)} />
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className="w-full text-sm"
+                    style={fieldStyle("price")}
+                    placeholder="0"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    onBlur={() => handleBlur("price")}
+                  />
+                  {fieldError("price")}
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">
-                    Quantity
+                    Quantity <span style={{ color: "var(--danger)" }}>*</span>
                   </label>
-                  <input type="number" className="w-full text-sm" placeholder="0" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    className="w-full text-sm"
+                    style={fieldStyle("quantity")}
+                    placeholder="0"
+                    value={quantity}
+                    onChange={(e) => setQuantity(e.target.value)}
+                    onBlur={() => handleBlur("quantity")}
+                  />
+                  {fieldError("quantity")}
                 </div>
               </div>
 
