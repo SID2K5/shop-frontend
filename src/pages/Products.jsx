@@ -27,6 +27,7 @@ import DeleteConfirmModal from "../components/DeleteConfirmModal";
 import StockHistoryModal from "../components/StockHistoryModal";
 import ActionMenu from "../components/ActionMenu";
 import EmptyState from "../components/EmptyState";
+import ProductRowTooltip from "../components/ProductRowTooltip";
 import { SkeletonCard, SkeletonTableRow } from "../components/Skeleton";
 import { showToast } from "../components/Toast";
 import { exportToCsv } from "../utils/exportCsv";
@@ -260,7 +261,8 @@ export default function Products() {
                 Array.from({ length: 5 }).map((_, i) => <SkeletonTableRow key={i} cols={6} />)
               ) : (
                 paginatedProducts.map((p) => (
-                  <tr key={p._id} className="group">
+                  <ProductRowTooltip key={p._id} product={p}>
+                  <tr className="group">
                     <td className="px-5 py-3 font-medium text-[var(--text-primary)]">{p.name}</td>
                     <td className="px-5 py-3 text-[var(--text-secondary)]">{p.category?.name}</td>
                     <td className="px-5 py-3 text-[var(--text-secondary)]" style={{ fontVariantNumeric: "tabular-nums" }}>
@@ -308,6 +310,7 @@ export default function Products() {
                       </div>
                     </td>
                   </tr>
+                  </ProductRowTooltip>
                 ))
               )}
             </tbody>

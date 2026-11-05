@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "./context/ThemeContext";
 import { ToastProvider } from "./components/Toast";
+import LoadingBar from "./components/LoadingBar";
 import MainLayout from "./layout/MainLayout";
 import Dashboard from "./pages/Dashboard";
 import Categories from "./pages/Categories";
@@ -10,6 +11,7 @@ function App() {
   return (
     <ThemeProvider>
       <ToastProvider />
+      <LoadingBar />
       <Routes>
         {/* Redirect root to dashboard */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
