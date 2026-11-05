@@ -140,6 +140,21 @@ html, body {
   transform: translateY(-1px);
 }
 
+.card-shimmer {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), transparent);
+  pointer-events: none;
+  transition: left 0.6s ease;
+}
+
+.card:hover .card-shimmer {
+  left: 150%;
+}
+
 /* ===================================
    BUTTONS
    =================================== */
