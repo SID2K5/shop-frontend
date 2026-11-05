@@ -9,7 +9,12 @@ import {
   ShoppingCart,
   TrendingUp,
   BarChart3,
+  Sparkles,
+  Clock,
+  ArrowUpRight,
 } from "lucide-react";
+import { motion } from "framer-motion";
+import { useTheme } from "../context/ThemeContext";
 
 import Card from "../components/Card";
 import {
@@ -43,7 +48,24 @@ const CustomTooltip = ({ active, payload, label, formatter }) => {
   );
 };
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  visible: (i) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.08, duration: 0.4, ease: "easeOut" },
+  }),
+};
+
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return "Good Morning";
+  if (h < 17) return "Good Afternoon";
+  return "Good Evening";
+}
+
 export default function Dashboard() {
+  const { dark } = useTheme();
   const [dashboard, setDashboard] = useState(null);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -85,41 +107,112 @@ export default function Dashboard() {
     return Object.entries(map).map(([category, value]) => ({ category, value }));
   }, [activeProducts]);
 
-  if (!dashboard) return null;
+  if (!dashboard) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-[var(--text-muted)]">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   const { snapshot, todaySales, todayActivity } = dashboard;
-  const catColors = ["#496D83", "#7897AB", "#A9C2D1", "#9AAEBB", "#C8DCE9"];
+  const catColors = dark
+    ? ["#7AADCA", "#8BAFC4", "#5E8DA6", "#6B9BB5", "#4A7B96"]
+    : ["#496D83", "#7897AB", "#A9C2D1", "#9AAEBB", "#C8DCE9"];
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] tracking-tight">
-        Dashboard
-      </h1>
+      {/* Welcome Hero */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="relative overflow-hidden rounded-[var(--radius-xl)] p-5 sm:p-6"
+        style={{
+          background: dark
+            ? "linear-gradient(135deg, #0D1B24 0%, #1A3345 40%, #264A5E 100%)"
+            : "linear-gradient(135deg, #2A4A5E 0%, #496D83 40%, #7897AB 100%)",
+          boxShadow: dark
+            ? "0 4px 24px rgba(0, 0, 0, 0.4)"
+            : "0 4px 24px rgba(42, 74, 94, 0.25)",
+        }}
+      >
+        <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-[0.07]"
+          style={{ background: "radial-gradient(circle, #C8DCE9, transparent 70%)", transform: "translate(30%, -40%)" }}
+        />
+        <div className="absolute bottom-0 left-0 w-40 h-40 rounded-full opacity-[0.05]"
+          style={{ background: "radial-gradient(circle, #C8DCE9, transparent 70%)", transform: "translate(-20%, 30%)" }}
+        />
+
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <Sparkles size={14} className="text-[#C8DCE9]" />
+              <span className="text-[11px] font-medium text-[#C8DCE9]/80 uppercase tracking-wider">{dateStr}</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-tight">
+              {getGreeting()}, Admin
+            </h1>
+            <p className="text-[13px] text-[#C8DCE9]/90 mt-1">
+              Here's what's happening with your inventory today.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-[var(--radius-md)] text-xs font-medium"
+              style={{ background: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.9)", backdropFilter: "blur(4px)" }}
+            >
+              <Clock size={13} />
+              <span>{now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}</span>
+            </div>
+          </div>
+        </div>
+      </motion.div>
 
       {/* Snapshot stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card title="Total Products" value={snapshot.totalProducts} icon={<Package size={15} />} color="blue" />
-        <Card title="Low Stock" value={snapshot.lowStock} icon={<AlertTriangle size={15} />} color="yellow" />
-        <Card title="Out of Stock" value={snapshot.outOfStock} icon={<XCircle size={15} />} color="red" />
-        <Card title="Inventory Value" value={`₹${snapshot.inventoryValue.toLocaleString()}`} icon={<IndianRupee size={15} />} color="green" />
+        {[
+          { title: "Total Products", value: snapshot.totalProducts, icon: <Package size={15} />, color: "blue", trend: null },
+          { title: "Low Stock", value: snapshot.lowStock, icon: <AlertTriangle size={15} />, color: "yellow", trend: snapshot.lowStock > 0 ? { up: false, label: `${snapshot.lowStock} items` } : null },
+          { title: "Out of Stock", value: snapshot.outOfStock, icon: <XCircle size={15} />, color: "red", trend: snapshot.outOfStock > 0 ? { up: false, label: `${snapshot.outOfStock} items` } : null },
+          { title: "Inventory Value", value: `₹${snapshot.inventoryValue.toLocaleString()}`, icon: <IndianRupee size={15} />, color: "green", trend: null },
+        ].map((card, i) => (
+          <motion.div key={card.title} custom={i} initial="hidden" animate="visible" variants={fadeUp}>
+            <Card {...card} />
+          </motion.div>
+        ))}
       </div>
 
       {/* Today's Sales */}
-      <div
+      <motion.div
+        custom={4} initial="hidden" animate="visible" variants={fadeUp}
         className="rounded-[var(--radius-xl)] p-5 sm:p-6"
         style={{ background: "var(--bg-card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}
       >
-        <div className="flex items-center gap-3 mb-5">
-          <div
-            className="w-9 h-9 rounded-lg flex items-center justify-center"
-            style={{ background: "var(--success-light)" }}
-          >
-            <ShoppingCart size={16} className="text-[var(--success)]" />
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <div
+              className="w-9 h-9 rounded-lg flex items-center justify-center"
+              style={{ background: "var(--success-light)" }}
+            >
+              <ShoppingCart size={16} className="text-[var(--success)]" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-[var(--text-primary)]">Today's Sales</h2>
+              <p className="text-[11px] text-[var(--text-muted)]">Real-time sales overview</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-sm font-bold text-[var(--text-primary)]">Today's Sales</h2>
-            <p className="text-[11px] text-[var(--text-muted)]">Real-time sales overview</p>
-          </div>
+          {todaySales.revenue > 0 && (
+            <div className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-[var(--success)]">
+              <ArrowUpRight size={14} />
+              <span>₹{todaySales.revenue.toLocaleString()} today</span>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
@@ -129,7 +222,10 @@ export default function Dashboard() {
         </div>
 
         {todaySales.chartData.length === 0 ? (
-          <p className="text-[var(--text-muted)] text-sm">No sales recorded today</p>
+          <div className="py-8 text-center">
+            <ShoppingCart size={24} className="mx-auto mb-2 text-[var(--text-muted)] opacity-40" />
+            <p className="text-[var(--text-muted)] text-sm">No sales recorded today</p>
+          </div>
         ) : (
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={todaySales.chartData} barCategoryGap="25%">
@@ -137,16 +233,17 @@ export default function Dashboard() {
               <XAxis dataKey="name" stroke="var(--text-muted)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis stroke="var(--text-muted)" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(73,109,131,0.06)" }} />
-              <Bar dataKey="qty" fill="#496D83" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="qty" fill={dark ? "#7AADCA" : "#496D83"} radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}
-      </div>
+      </motion.div>
 
       {/* Inventory + Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
         {/* Chart */}
-        <div
+        <motion.div
+          custom={5} initial="hidden" animate="visible" variants={fadeUp}
           className="lg:col-span-3 rounded-[var(--radius-xl)] p-5 sm:p-6"
           style={{ background: "var(--bg-card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}
         >
@@ -164,7 +261,10 @@ export default function Dashboard() {
           </div>
 
           {inventoryByCategory.length === 0 ? (
-            <p className="text-[var(--text-muted)] text-sm">No active category data</p>
+            <div className="py-8 text-center">
+              <BarChart3 size={24} className="mx-auto mb-2 text-[var(--text-muted)] opacity-40" />
+              <p className="text-[var(--text-muted)] text-sm">No active category data</p>
+            </div>
           ) : (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={inventoryByCategory} barCategoryGap="25%">
@@ -180,22 +280,36 @@ export default function Dashboard() {
               </BarChart>
             </ResponsiveContainer>
           )}
-        </div>
+        </motion.div>
 
         {/* Activity feed */}
-        <div
+        <motion.div
+          custom={6} initial="hidden" animate="visible" variants={fadeUp}
           className="lg:col-span-2 rounded-[var(--radius-xl)] p-5 sm:p-6"
           style={{ background: "var(--bg-card)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)" }}
         >
-          <h2 className="text-sm font-bold text-[var(--text-primary)] mb-4">Today's Activity</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-bold text-[var(--text-primary)]">Today's Activity</h2>
+            <span className="text-[10px] font-medium text-[var(--text-muted)] px-2 py-1 rounded-full"
+              style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)" }}
+            >
+              {todayActivity.length} events
+            </span>
+          </div>
 
           {todayActivity.length === 0 ? (
-            <p className="text-[var(--text-muted)] text-sm">No activity today</p>
+            <div className="py-8 text-center">
+              <Clock size={24} className="mx-auto mb-2 text-[var(--text-muted)] opacity-40" />
+              <p className="text-[var(--text-muted)] text-sm">No activity today</p>
+            </div>
           ) : (
             <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
               {todayActivity.map((a, i) => (
-                <div
+                <motion.div
                   key={i}
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 + i * 0.05, duration: 0.3 }}
                   className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] transition-colors hover:bg-[var(--bg-secondary)]"
                   style={{ border: "1px solid var(--border)" }}
                 >
@@ -232,11 +346,11 @@ export default function Dashboard() {
                   >
                     {a.type}
                   </span>
-                </div>
+                </motion.div>
               ))}
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
     </div>
   );

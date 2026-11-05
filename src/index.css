@@ -59,6 +59,48 @@
 }
 
 /* ===================================
+   DARK THEME
+   =================================== */
+
+[data-theme="dark"] {
+  --primary: #7AADCA;
+  --primary-hover: #8DBDD6;
+  --primary-light: #1C2E3A;
+  --powder-blue: #3A5468;
+  --steel-blue: #8BAFC4;
+
+  --sidebar-bg: #0F1A22;
+  --sidebar-hover: #1A2D3A;
+  --sidebar-active: #243D4E;
+
+  --bg-main: #111D26;
+  --bg-secondary: #172731;
+  --bg-card: #1A2D3A;
+
+  --text-primary: #E4EDF3;
+  --text-secondary: #A3B8C8;
+  --text-muted: #6E8A9E;
+
+  --border: #243D4E;
+  --border-hover: #2F5266;
+
+  --success: #4EBF8B;
+  --success-light: #132B22;
+  --success-border: #1E4A36;
+  --warning: #D4A017;
+  --warning-light: #2B2210;
+  --warning-border: #4A3A14;
+  --danger: #E06B6B;
+  --danger-light: #2E1717;
+  --danger-border: #4E2424;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ===================================
    BASE
    =================================== */
 
@@ -68,6 +110,11 @@ html, body {
   font-family: "Inter", system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 /* ===================================
@@ -86,6 +133,7 @@ html, body {
 .card:hover {
   box-shadow: var(--shadow-md);
   border-color: var(--border-hover);
+  transform: translateY(-1px);
 }
 
 /* ===================================
