@@ -230,12 +230,16 @@ export default function Dashboard() {
   }, [dashboard, salesRange]);
 
   const activityStats = useMemo(() => {
-    if (!dashboard) return { sold: 0, lowStock: 0, added: 0, total: 0 };
+    if (!dashboard) return { sold: 0, soldQty: 0, lowStock: 0, added: 0, addedQty: 0, total: 0 };
     const acts = dashboard.todayActivity;
+    const soldEvents = acts.filter((a) => a.type === "Sold");
+    const addedEvents = acts.filter((a) => a.type === "Stock Added");
     return {
-      sold: acts.filter((a) => a.type === "Sold").length,
+      sold: soldEvents.length,
+      soldQty: soldEvents.reduce((sum, a) => sum + (a.qty ?? a.quantity ?? 0), 0),
       lowStock: acts.filter((a) => a.type === "Low Stock").length,
-      added: acts.filter((a) => a.type === "Stock Added").length,
+      added: addedEvents.length,
+      addedQty: addedEvents.reduce((sum, a) => sum + (a.qty ?? a.quantity ?? 0), 0),
       total: acts.length,
     };
   }, [dashboard]);
@@ -592,16 +596,24 @@ export default function Dashboard() {
           {activityStats.total > 0 && (
             <div className="grid grid-cols-3 gap-2 mb-4">
               <div className="rounded-[var(--radius-sm)] p-2.5 text-center" style={{ background: "var(--success-light)", border: "1px solid var(--success-border)" }}>
-                <p className="text-lg font-bold text-[var(--success)]">{activityStats.sold}</p>
-                <p className="text-[9px] font-semibold text-[var(--success)] uppercase tracking-wide">Sold</p>
+                <p className="text-lg font-bold text-[var(--success)]" style={{ fontVariantNumeric: "tabular-nums" }}>
+                  {activityStats.soldQty > 0 ? activityStats.soldQty : activityStats.sold}
+                </p>
+                <p className="text-[9px] font-semibold text-[var(--success)] uppercase tracking-wide">
+                  {activityStats.soldQty > 0 ? "Units Sold" : "Sold"}
+                </p>
               </div>
               <div className="rounded-[var(--radius-sm)] p-2.5 text-center" style={{ background: "var(--warning-light)", border: "1px solid var(--warning-border)" }}>
-                <p className="text-lg font-bold text-[var(--warning)]">{activityStats.lowStock}</p>
+                <p className="text-lg font-bold text-[var(--warning)]" style={{ fontVariantNumeric: "tabular-nums" }}>{activityStats.lowStock}</p>
                 <p className="text-[9px] font-semibold text-[var(--warning)] uppercase tracking-wide">Low Stock</p>
               </div>
               <div className="rounded-[var(--radius-sm)] p-2.5 text-center" style={{ background: "var(--primary-light)", border: "1px solid var(--powder-blue)" }}>
-                <p className="text-lg font-bold text-[var(--primary)]">{activityStats.added}</p>
-                <p className="text-[9px] font-semibold text-[var(--primary)] uppercase tracking-wide">Added</p>
+                <p className="text-lg font-bold text-[var(--primary)]" style={{ fontVariantNumeric: "tabular-nums" }}>
+                  {activityStats.addedQty > 0 ? activityStats.addedQty : activityStats.added}
+                </p>
+                <p className="text-[9px] font-semibold text-[var(--primary)] uppercase tracking-wide">
+                  {activityStats.addedQty > 0 ? "Units Added" : "Added"}
+                </p>
               </div>
             </div>
           )}
@@ -638,23 +650,46 @@ export default function Dashboard() {
 
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-[var(--text-primary)] truncate">{a.product}</p>
-                    <p className="text-[10px] text-[var(--text-muted)]">{a.time}</p>
+                    <p className="text-[10px] text-[var(--text-muted)]">
+                      {a.time}
+                      {(a.qty != null || a.quantity != null) && (
+                        <span className="ml-1.5 font-semibold" style={{
+                          color: a.type === "Sold" ? "var(--success)"
+                            : a.type === "Low Stock" ? "var(--warning)"
+                            : "var(--primary)",
+                        }}>
+                          &middot; {a.qty ?? a.quantity} {a.type === "Sold" ? "sold" : a.type === "Stock Added" ? "added" : "remaining"}
+                        </span>
+                      )}
+                    </p>
                   </div>
 
-                  <span
-                    className={`badge text-[9px] flex-shrink-0 ${
-                      a.type === "Sold" ? "badge-success"
-                      : a.type === "Low Stock" ? "badge-warning"
-                      : "badge-success"
-                    }`}
-                    style={
-                      a.type === "Stock Added"
-                        ? { background: "var(--primary-light)", color: "var(--primary)", borderColor: "var(--powder-blue)" }
-                        : {}
-                    }
-                  >
-                    {a.type}
-                  </span>
+                  <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                    <span
+                      className={`badge text-[9px] ${
+                        a.type === "Sold" ? "badge-success"
+                        : a.type === "Low Stock" ? "badge-warning"
+                        : "badge-success"
+                      }`}
+                      style={
+                        a.type === "Stock Added"
+                          ? { background: "var(--primary-light)", color: "var(--primary)", borderColor: "var(--powder-blue)" }
+                          : {}
+                      }
+                    >
+                      {a.type}
+                    </span>
+                    {(a.qty != null || a.quantity != null) && (
+                      <span className="text-[10px] font-bold" style={{
+                        color: a.type === "Sold" ? "var(--success)"
+                          : a.type === "Low Stock" ? "var(--warning)"
+                          : "var(--primary)",
+                        fontVariantNumeric: "tabular-nums",
+                      }}>
+                        {a.type === "Sold" ? "−" : "+"}{a.qty ?? a.quantity} qty
+                      </span>
+                    )}
+                  </div>
                 </motion.div>
               ))}
             </div>
