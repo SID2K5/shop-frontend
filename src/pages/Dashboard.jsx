@@ -304,6 +304,17 @@ export default function Dashboard() {
     );
   }
 
+  if (!dashboard) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="text-center">
+          <p className="text-[var(--text-muted)] text-sm">Unable to load dashboard data.</p>
+          <button onClick={() => window.location.reload()} className="btn btn-primary mt-3 text-sm">Retry</button>
+        </div>
+      </div>
+    );
+  }
+
   const { snapshot, todaySales, todayActivity } = dashboard;
 
   return (

@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Tags,
@@ -7,18 +7,27 @@ import {
   LogOut,
   X,
   ChevronRight,
+  Activity,
+  HelpCircle,
+  Settings,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
 
 const navItems = [
-  { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-  { name: "Categories", path: "/categories", icon: Tags },
-  { name: "Products", path: "/products", icon: Package },
+  { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard, description: "Overview & analytics" },
+  { name: "Categories", path: "/categories", icon: Tags, description: "Organize products" },
+  { name: "Products", path: "/products", icon: Package, description: "Inventory & stock" },
+];
+
+const bottomItems = [
+  { name: "Settings", icon: Settings },
+  { name: "Help & Support", icon: HelpCircle },
 ];
 
 export default function Sidebar({ isOpen, onClose }) {
   const { dark } = useTheme();
+  const location = useLocation();
 
   return (
     <>
@@ -47,19 +56,45 @@ export default function Sidebar({ isOpen, onClose }) {
         `}
         style={{
           background: dark
-            ? "linear-gradient(180deg, #0A1218 0%, var(--sidebar-bg) 100%)"
-            : "linear-gradient(180deg, #1E2F3D 0%, var(--sidebar-bg) 100%)",
+            ? "linear-gradient(180deg, #0A1218 0%, #0D161E 40%, var(--sidebar-bg) 100%)"
+            : "linear-gradient(180deg, #1A2D3B 0%, #223847 40%, var(--sidebar-bg) 100%)",
+          borderRight: `1px solid ${dark ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.06)"}`,
         }}
       >
+        {/* Decorative background glow */}
+        <div
+          className="absolute inset-0 pointer-events-none overflow-hidden"
+          style={{ borderRadius: "inherit" }}
+        >
+          <div
+            className="absolute -top-20 -left-20 w-60 h-60 rounded-full"
+            style={{
+              background: dark
+                ? "radial-gradient(circle, rgba(107, 167, 212, 0.06) 0%, transparent 70%)"
+                : "radial-gradient(circle, rgba(200, 220, 233, 0.1) 0%, transparent 70%)",
+            }}
+          />
+          <div
+            className="absolute bottom-20 -right-10 w-40 h-40 rounded-full"
+            style={{
+              background: dark
+                ? "radial-gradient(circle, rgba(107, 167, 212, 0.03) 0%, transparent 70%)"
+                : "radial-gradient(circle, rgba(200, 220, 233, 0.06) 0%, transparent 70%)",
+            }}
+          />
+        </div>
+
         {/* Brand */}
-        <div className="px-5 pt-6 pb-3">
+        <div className="relative px-5 pt-5 pb-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div
                 className="w-10 h-10 rounded-xl flex items-center justify-center"
                 style={{
                   background: "linear-gradient(135deg, var(--primary), var(--steel-blue))",
-                  boxShadow: "0 4px 12px rgba(73, 109, 131, 0.35)",
+                  boxShadow: dark
+                    ? "0 4px 16px rgba(107, 167, 212, 0.25)"
+                    : "0 4px 16px rgba(73, 109, 131, 0.4)",
                 }}
               >
                 <Warehouse size={20} strokeWidth={2} className="text-white" />
@@ -68,7 +103,9 @@ export default function Sidebar({ isOpen, onClose }) {
                 <h1 className="text-[15px] font-bold leading-tight text-white tracking-[-0.01em]">
                   StockManager
                 </h1>
-                <p className="text-[10px] text-[var(--steel-blue)] font-medium">Inventory Platform</p>
+                <p className="text-[10px] font-medium" style={{ color: "var(--steel-blue)" }}>
+                  Inventory Platform
+                </p>
               </div>
             </div>
 
@@ -81,62 +118,109 @@ export default function Sidebar({ isOpen, onClose }) {
           </div>
         </div>
 
+        {/* Divider */}
+        <div className="relative px-5 py-3">
+          <div className="h-px w-full" style={{ background: "rgba(255,255,255,0.06)" }} />
+        </div>
+
         {/* Navigation label */}
-        <div className="px-5 pt-5 pb-2">
-          <p className="text-[9px] font-bold tracking-[0.2em] text-[var(--steel-blue)]/60 uppercase">
+        <div className="relative px-5 pb-2">
+          <p className="text-[9px] font-bold tracking-[0.15em] uppercase" style={{ color: "rgba(120, 151, 171, 0.5)" }}>
             Main Menu
           </p>
         </div>
 
         {/* Navigation */}
-        <div className="px-3 flex-1">
-          <nav className="space-y-0.5">
+        <div className="relative px-3 flex-1">
+          <nav className="space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
+              const isActive = location.pathname === item.path;
               return (
                 <NavLink
                   key={item.path}
                   to={item.path}
                   onClick={onClose}
-                  className={({ isActive }) =>
-                    `group relative flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] transition-all duration-200 ${
-                      isActive
-                        ? "text-white"
-                        : "text-[var(--steel-blue)] hover:text-[var(--powder-blue)] hover:bg-white/[0.05]"
-                    }`
-                  }
-                  style={({ isActive }) =>
+                  className="group relative flex items-center gap-3 px-3 py-3 rounded-[var(--radius-md)] transition-all duration-200"
+                  style={
                     isActive
                       ? {
-                          background: "linear-gradient(90deg, var(--sidebar-active), rgba(64, 93, 112, 0.5))",
-                          boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                          background: dark
+                            ? "linear-gradient(90deg, rgba(107, 167, 212, 0.12), rgba(107, 167, 212, 0.04))"
+                            : "linear-gradient(90deg, rgba(200, 220, 233, 0.18), rgba(200, 220, 233, 0.06))",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
                         }
                       : {}
                   }
                 >
-                  {({ isActive }) => (
-                    <>
-                      {isActive && (
-                        <div
-                          className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full"
-                          style={{ background: "var(--powder-blue)" }}
-                        />
-                      )}
+                  {/* Active indicator bar */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="sidebar-active"
+                      className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] rounded-r-full"
+                      style={{
+                        height: 24,
+                        background: "linear-gradient(180deg, var(--powder-blue), var(--steel-blue))",
+                        boxShadow: dark
+                          ? "0 0 8px rgba(107, 167, 212, 0.4)"
+                          : "0 0 8px rgba(200, 220, 233, 0.6)",
+                      }}
+                      transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                    />
+                  )}
 
-                      <Icon
-                        size={17}
-                        strokeWidth={2}
-                        className={`transition-colors ${
-                          isActive
-                            ? "text-[var(--powder-blue)]"
-                            : "text-[var(--steel-blue)] group-hover:text-[var(--powder-blue)]"
-                        }`}
-                      />
-                      <span className="text-[13px] font-medium flex-1">{item.name}</span>
-                      {isActive && (
-                        <ChevronRight size={14} className="text-[var(--steel-blue)] opacity-50" />
-                      )}
-                    </>
+                  <div
+                    className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200"
+                    style={
+                      isActive
+                        ? {
+                            background: dark
+                              ? "rgba(107, 167, 212, 0.15)"
+                              : "rgba(200, 220, 233, 0.2)",
+                          }
+                        : {
+                            background: "rgba(255,255,255,0.03)",
+                          }
+                    }
+                  >
+                    <Icon
+                      size={17}
+                      strokeWidth={2}
+                      style={{
+                        color: isActive ? "var(--powder-blue)" : "var(--steel-blue)",
+                        transition: "color 0.2s",
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <span
+                      className="text-[13px] font-semibold block leading-tight"
+                      style={{
+                        color: isActive ? "#fff" : "var(--steel-blue)",
+                        transition: "color 0.2s",
+                      }}
+                    >
+                      {item.name}
+                    </span>
+                    <span
+                      className="text-[10px] block leading-tight mt-0.5"
+                      style={{
+                        color: isActive
+                          ? "rgba(200, 220, 233, 0.6)"
+                          : "rgba(120, 151, 171, 0.4)",
+                        transition: "color 0.2s",
+                      }}
+                    >
+                      {item.description}
+                    </span>
+                  </div>
+
+                  {isActive && (
+                    <ChevronRight
+                      size={14}
+                      style={{ color: "var(--steel-blue)", opacity: 0.5 }}
+                    />
                   )}
                 </NavLink>
               );
@@ -144,22 +228,91 @@ export default function Sidebar({ isOpen, onClose }) {
           </nav>
         </div>
 
-        {/* Footer */}
-        <div className="px-3 pb-4">
-          <div className="h-px w-full bg-white/[0.06] mb-3" />
-
+        {/* Footer section */}
+        <div className="relative px-3 pb-4">
+          {/* System status */}
           <div
             className="mx-2 mb-3 p-3 rounded-[var(--radius-md)]"
-            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)" }}
+            style={{
+              background: dark
+                ? "rgba(255,255,255,0.03)"
+                : "rgba(255,255,255,0.05)",
+              border: `1px solid ${dark ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.07)"}`,
+            }}
           >
-            <p className="text-[10px] text-[var(--steel-blue)] font-medium mb-2">System Status</p>
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[11px] text-[var(--powder-blue)]">All systems operational</span>
+            <div className="flex items-center gap-2 mb-2.5">
+              <Activity size={12} style={{ color: "var(--steel-blue)", opacity: 0.7 }} />
+              <p className="text-[10px] font-semibold tracking-wide uppercase" style={{ color: "rgba(120, 151, 171, 0.5)" }}>
+                System Status
+              </p>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <span
+                className="w-2 h-2 rounded-full flex-shrink-0"
+                style={{
+                  background: "#34D399",
+                  boxShadow: "0 0 6px rgba(52, 211, 153, 0.5)",
+                }}
+              />
+              <span className="text-[11px] font-medium" style={{ color: "var(--powder-blue)" }}>
+                All systems operational
+              </span>
+            </div>
+            <div className="mt-2 flex gap-3">
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--steel-blue)", opacity: 0.4 }} />
+                <span className="text-[9px]" style={{ color: "rgba(120, 151, 171, 0.45)" }}>API</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--steel-blue)", opacity: 0.4 }} />
+                <span className="text-[9px]" style={{ color: "rgba(120, 151, 171, 0.45)" }}>Database</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--steel-blue)", opacity: 0.4 }} />
+                <span className="text-[9px]" style={{ color: "rgba(120, 151, 171, 0.45)" }}>Storage</span>
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 px-3 py-2 rounded-[var(--radius-md)] text-[var(--steel-blue)] hover:text-red-300 hover:bg-red-500/[0.06] transition-all cursor-pointer">
+          {/* Divider */}
+          <div className="h-px w-full mx-2 mb-2" style={{ background: "rgba(255,255,255,0.04)", maxWidth: "calc(100% - 1rem)" }} />
+
+          {/* Bottom links */}
+          {bottomItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div
+                key={item.name}
+                className="flex items-center gap-3 px-3 py-2 rounded-[var(--radius-md)] cursor-pointer transition-all duration-200"
+                style={{ color: "var(--steel-blue)" }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+                  e.currentTarget.style.color = "var(--powder-blue)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.color = "var(--steel-blue)";
+                }}
+              >
+                <Icon size={15} />
+                <span className="text-[12px] font-medium">{item.name}</span>
+              </div>
+            );
+          })}
+
+          {/* Logout */}
+          <div
+            className="flex items-center gap-3 px-3 py-2 mt-0.5 rounded-[var(--radius-md)] cursor-pointer transition-all duration-200"
+            style={{ color: "var(--steel-blue)" }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "rgba(220, 80, 80, 0.08)";
+              e.currentTarget.style.color = "#fb7185";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "transparent";
+              e.currentTarget.style.color = "var(--steel-blue)";
+            }}
+          >
             <LogOut size={15} />
             <span className="text-[12px] font-medium">Log out</span>
           </div>
