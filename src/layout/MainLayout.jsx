@@ -9,12 +9,12 @@ export default function MainLayout() {
   const location = useLocation();
 
   return (
-    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-primary)] flex">
+    <div className="h-screen bg-[var(--bg-main)] text-[var(--text-primary)] flex overflow-hidden">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <Navbar onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}

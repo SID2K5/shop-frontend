@@ -1,6 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu } from "lucide-react";
+import { Menu, Sun, Moon } from "lucide-react";
+import { useTheme } from "../context/ThemeContext";
 
 const pageDetails = {
   "/dashboard": { title: "Dashboard", subtitle: "Overview & analytics" },
@@ -10,6 +11,7 @@ const pageDetails = {
 
 export default function Navbar({ onMenuClick }) {
   const location = useLocation();
+  const { dark, toggle } = useTheme();
   const currentPage = pageDetails[location.pathname] || {
     title: "StockManager",
     subtitle: "Inventory platform",
@@ -51,6 +53,26 @@ export default function Navbar({ onMenuClick }) {
           </p>
         </motion.div>
       </AnimatePresence>
+
+      {/* Theme toggle */}
+      <button
+        onClick={toggle}
+        className="w-10 h-10 rounded-[var(--radius-md)] flex items-center justify-center transition-colors text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
+        aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+      >
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.span
+            key={dark ? "moon" : "sun"}
+            initial={{ opacity: 0, rotate: -90, scale: 0.6 }}
+            animate={{ opacity: 1, rotate: 0, scale: 1 }}
+            exit={{ opacity: 0, rotate: 90, scale: 0.6 }}
+            transition={{ duration: 0.15 }}
+            className="flex items-center justify-center"
+          >
+            {dark ? <Moon size={20} /> : <Sun size={20} />}
+          </motion.span>
+        </AnimatePresence>
+      </button>
     </header>
   );
 }
