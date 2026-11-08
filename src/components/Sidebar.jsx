@@ -6,8 +6,6 @@ import {
   Warehouse,
   LogOut,
   X,
-  Sun,
-  Moon,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../context/ThemeContext";
@@ -228,77 +226,6 @@ export default function Sidebar({ isOpen, onClose }) {
 
         {/* ── Footer ── */}
         <div className="relative px-5 pb-6">
-          {/* System status */}
-          <div
-            className="mx-1 mb-5 px-5 py-5 rounded-[var(--radius-lg)]"
-            style={{
-              background: dark ? "rgba(255,255,255,0.02)" : "rgba(255,255,255,0.04)",
-              border: `1px solid ${dark ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.06)"}`,
-            }}
-          >
-            <div className="flex items-center gap-3">
-              <span
-                className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                style={{
-                  background: "#34D399",
-                  boxShadow: "0 0 8px rgba(52,211,153,0.5)",
-                }}
-              />
-              <span className="text-[13px] font-medium" style={{ color: dark ? "#C8DCE9" : "var(--powder-blue)" }}>
-                All systems operational
-              </span>
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div
-            className="mx-2 mb-5 h-px"
-            style={{
-              background: dark
-                ? "linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent)"
-                : "linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)",
-            }}
-          />
-
-          {/* Theme toggle */}
-          <div className="mx-1 mb-4 flex items-center justify-between px-5 py-3.5 rounded-[var(--radius-md)]">
-            <span className="text-[13px] font-medium" style={{ color: "var(--steel-blue)" }}>
-              {dark ? "Dark Mode" : "Light Mode"}
-            </span>
-            <button
-              onClick={toggle}
-              className="w-10 h-10 rounded-lg flex items-center justify-center transition-colors"
-              style={{
-                background: dark ? "rgba(107,167,212,0.1)" : "rgba(200,220,233,0.15)",
-                color: dark ? "#6BA7D4" : "#C8DCE9",
-              }}
-              aria-label={dark ? "Light mode" : "Dark mode"}
-            >
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.span
-                  key={dark ? "moon" : "sun"}
-                  initial={{ opacity: 0, rotate: -90, scale: 0.6 }}
-                  animate={{ opacity: 1, rotate: 0, scale: 1 }}
-                  exit={{ opacity: 0, rotate: 90, scale: 0.6 }}
-                  transition={{ duration: 0.15 }}
-                  className="flex items-center justify-center"
-                >
-                  {dark ? <Moon size={18} /> : <Sun size={18} />}
-                </motion.span>
-              </AnimatePresence>
-            </button>
-          </div>
-
-          {/* Divider */}
-          <div
-            className="mx-2 mb-4 h-px"
-            style={{
-              background: dark
-                ? "linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent)"
-                : "linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)",
-            }}
-          />
-
           {/* User profile + logout */}
           <div className="mx-1 flex items-center gap-4 px-5 py-4.5 rounded-[var(--radius-lg)]"
             style={{
